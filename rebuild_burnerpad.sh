@@ -34,7 +34,6 @@ cp ~/BurnerPad/BurnerPad/CryptoPackage.kt $KOTLIN_DIR/
 
 echo "==> Registering CryptoPackage in MainApplication.kt..."
 MAIN_APP=$KOTLIN_DIR/MainApplication.kt
-
 sed -i 's/import com.facebook.react.PackageList/import com.facebook.react.PackageList\nimport com.burnerpadapp.CryptoPackage/' $MAIN_APP
 sed -i 's|          // add(MyReactNativePackage())|          add(CryptoPackage())|' $MAIN_APP
 
@@ -52,6 +51,39 @@ npm install \
   react-native-safe-area-context \
   react-native-zip-archive \
   @react-native-documents/picker
+
+echo "==> Setting app icons..."
+ICON_SRC=~/BurnerPad/BurnerPad/icon-1024.png
+RES_DIR=~/BurnerPad/BurnerPadApp/android/app/src/main/res
+
+if [ ! -f "$ICON_SRC" ]; then
+  echo "    WARNING: icon-1024.png not found in BurnerPad/BurnerPad/ — using default icon"
+elif ! command -v convert &> /dev/null; then
+  echo "    WARNING: ImageMagick not found — using default icon"
+  echo "    Install with: sudo apt install imagemagick"
+else
+  echo "    Generating icon sizes from icon-1024.png..."
+  for density in mdpi hdpi xhdpi xxhdpi xxxhdpi; do
+    case $density in
+      mdpi)    size=48  ;;
+      hdpi)    size=72  ;;
+      xhdpi)   size=96  ;;
+      xxhdpi)  size=144 ;;
+      xxxhdpi) size=192 ;;
+    esac
+    dir=$RES_DIR/mipmap-$density
+    mkdir -p $dir
+    convert "$ICON_SRC" -resize ${size}x${size} $dir/ic_launcher.png
+    convert "$ICON_SRC" -resize ${size}x${size} \
+      \( +clone -alpha extract \
+         -draw "fill black polygon 0,0 0,${size} ${size},0 fill white circle $((size/2)),$((size/2)) $((size/2)),0" \
+         \( +clone -flip \) -compose Multiply -composite \
+         \( +clone -flop \) -compose Multiply -composite \
+      \) -alpha off -compose CopyOpacity -composite \
+      $dir/ic_launcher_round.png
+  done
+  echo "    Icons generated OK"
+fi
 
 echo "==> Building release APK..."
 cd ~/BurnerPad/BurnerPadApp/android
