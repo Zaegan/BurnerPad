@@ -53,7 +53,7 @@ npm install \
   @react-native-documents/picker
 
 echo "==> Setting app icons..."
-ICON_SRC=~/BurnerPad/BurnerPad/icon-1024.png
+ICON_SRC=~/BurnerPad/BurnerPad/icon-512.png
 RES_DIR=~/BurnerPad/BurnerPadApp/android/app/src/main/res
 
 if [ ! -f "$ICON_SRC" ]; then
