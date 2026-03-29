@@ -90,7 +90,7 @@ export default function EditorScreen({navigation, route}) {
       [
         {text: 'Save and exit',         onPress: onSaveAndExit},
         {text: 'Exit and delete draft',  onPress: onDiscardAndExit},
-        {text: 'Cancel'},
+        {text: 'Cancel',                 onPress: undefined},
       ],
     );
   }
