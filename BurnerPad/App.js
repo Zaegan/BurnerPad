@@ -35,6 +35,13 @@ export function setSuppressLock(value) {
   _suppressLock = value;
 }
 
+// ── Before-lock flush (used by EditorScreen to write shadow before lock) ──────
+
+let _beforeLockFlush = null;
+
+export function registerBeforeLock(fn)  { _beforeLockFlush = fn;   }
+export function unregisterBeforeLock()  { _beforeLockFlush = null; }
+
 // ── Global PIN requirement ────────────────────────────────────────────────────
 
 let _navigationRef = null;
@@ -73,12 +80,19 @@ export default function App() {
       const goingAway = nextState === 'inactive' || nextState === 'background';
 
       if (wasActive && goingAway && !_suppressLock) {
-        CryptoManager.clearSessionKey();
-        if (_navigationRef) {
-          _navigationRef.reset({
-            index: 0,
-            routes: [{name: 'Pin'}],
-          });
+        const doLock = () => {
+          CryptoManager.clearSessionKey();
+          if (_navigationRef) {
+            _navigationRef.reset({
+              index: 0,
+              routes: [{name: 'Pin'}],
+            });
+          }
+        };
+        if (_beforeLockFlush) {
+          _beforeLockFlush().catch(() => {}).finally(doLock);
+        } else {
+          doLock();
         }
       }
 

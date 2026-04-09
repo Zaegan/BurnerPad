@@ -29,7 +29,7 @@ import {
 import RNFS from 'react-native-fs';
 import StorageManager from '../storage/StorageManager';
 import CryptoManager from '../crypto/CryptoManager';
-import {requirePin} from '../../App';
+import {requirePin, registerBeforeLock, unregisterBeforeLock} from '../../App';
 
 const SHADOW_DELAY   = 3000;
 const AUTOSAVE_DELAY = 800;
@@ -78,6 +78,20 @@ export default function EditorScreen({navigation, route}) {
 
   useEffect(() => { isDirtyRef.current = isDirty; }, [isDirty]);
   useEffect(() => { autosaveRef.current = autosave; }, [autosave]);
+
+  // ── Flush shadow before app locks (AppState: active → inactive/background) ─
+  // Runs before App.js clears the session key, ensuring unsaved edits are
+  // captured even if the shadow debounce timer hasn't fired yet.
+
+  useEffect(() => {
+    registerBeforeLock(async () => {
+      if (isDirtyRef.current && !autosaveRef.current) {
+        if (shadowTimer.current) clearTimeout(shadowTimer.current);
+        try { await StorageManager.writeShadow(latestPath.current, latestContent.current); } catch {}
+      }
+    });
+    return () => unregisterBeforeLock();
+  }, []);
 
   // ── Unsaved changes dialog ────────────────────────────────────────────────
   // Order: Save and exit / Exit and delete draft / Cancel
