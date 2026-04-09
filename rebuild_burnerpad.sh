@@ -9,12 +9,12 @@ cd ~/BurnerPad
 npx @react-native-community/cli init BurnerPadApp --version 0.84.1
 
 echo "==> Patching package name and app display name..."
+sed -i 's/namespace "com.burnerpadapp"/namespace "com.github.zaegan.burnerpad"/' \
+  ~/BurnerPad/BurnerPadApp/android/app/build.gradle
 sed -i 's/applicationId "com.burnerpadapp"/applicationId "com.github.zaegan.burnerpad"/' \
   ~/BurnerPad/BurnerPadApp/android/app/build.gradle
 sed -i 's|<string name="app_name">BurnerPadApp</string>|<string name="app_name">BurnerPad</string>|' \
   ~/BurnerPad/BurnerPadApp/android/app/src/main/res/values/strings.xml
-sed -i 's/package="com.burnerpadapp"/package="com.github.zaegan.burnerpad"/' \
-  ~/BurnerPad/BurnerPadApp/android/app/src/main/AndroidManifest.xml
 OLD_PKG_DIR=~/BurnerPad/BurnerPadApp/android/app/src/main/java/com/burnerpadapp
 NEW_PKG_DIR=~/BurnerPad/BurnerPadApp/android/app/src/main/java/com/github/zaegan/burnerpad
 mkdir -p $NEW_PKG_DIR
