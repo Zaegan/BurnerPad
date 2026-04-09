@@ -8,6 +8,19 @@ echo "==> Initializing fresh React Native project..."
 cd ~/BurnerPad
 npx @react-native-community/cli init BurnerPadApp --version 0.84.1
 
+echo "==> Patching package name and app display name..."
+sed -i 's/applicationId "com.burnerpadapp"/applicationId "com.github.zaegan.burnerpad"/' \
+  ~/BurnerPad/BurnerPadApp/android/app/build.gradle
+sed -i 's|<string name="app_name">BurnerPadApp</string>|<string name="app_name">BurnerPad</string>|' \
+  ~/BurnerPad/BurnerPadApp/android/app/src/main/res/values/strings.xml
+sed -i 's/package="com.burnerpadapp"/package="com.github.zaegan.burnerpad"/' \
+  ~/BurnerPad/BurnerPadApp/android/app/src/main/AndroidManifest.xml
+OLD_PKG_DIR=~/BurnerPad/BurnerPadApp/android/app/src/main/java/com/burnerpadapp
+NEW_PKG_DIR=~/BurnerPad/BurnerPadApp/android/app/src/main/java/com/github/zaegan/burnerpad
+mkdir -p $NEW_PKG_DIR
+mv $OLD_PKG_DIR/*.kt $NEW_PKG_DIR/
+sed -i 's/^package com.burnerpadapp/package com.github.zaegan.burnerpad/' $NEW_PKG_DIR/*.kt
+
 echo "==> Removing App.tsx..."
 rm ~/BurnerPad/BurnerPadApp/App.tsx
 
@@ -28,13 +41,13 @@ cp ~/BurnerPad/BurnerPad/EditorScreen.js      ~/BurnerPad/BurnerPadApp/src/scree
 cp ~/BurnerPad/BurnerPad/SettingsScreen.js    ~/BurnerPad/BurnerPadApp/src/screens/
 
 echo "==> Copying native Kotlin modules..."
-KOTLIN_DIR=~/BurnerPad/BurnerPadApp/android/app/src/main/java/com/burnerpadapp
+KOTLIN_DIR=~/BurnerPad/BurnerPadApp/android/app/src/main/java/com/github/zaegan/burnerpad
 cp ~/BurnerPad/BurnerPad/CryptoModule.kt  $KOTLIN_DIR/
 cp ~/BurnerPad/BurnerPad/CryptoPackage.kt $KOTLIN_DIR/
 
 echo "==> Registering CryptoPackage in MainApplication.kt..."
 MAIN_APP=$KOTLIN_DIR/MainApplication.kt
-sed -i 's/import com.facebook.react.PackageList/import com.facebook.react.PackageList\nimport com.burnerpadapp.CryptoPackage/' $MAIN_APP
+sed -i 's/import com.facebook.react.PackageList/import com.facebook.react.PackageList\nimport com.github.zaegan.burnerpad.CryptoPackage/' $MAIN_APP
 sed -i 's|          // add(MyReactNativePackage())|          add(CryptoPackage())|' $MAIN_APP
 
 echo "==> Verifying MainApplication.kt patch..."

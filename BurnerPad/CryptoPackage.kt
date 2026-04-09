@@ -1,4 +1,4 @@
-package com.burnerpadapp
+package com.github.zaegan.burnerpad
 
 import com.facebook.react.ReactPackage
 import com.facebook.react.bridge.NativeModule
