@@ -65,6 +65,10 @@ npm install \
   react-native-zip-archive \
   @react-native-documents/picker
 
+echo "==> Patching react-native-zip-archive (double switch selector bug)..."
+sed -i 's/switch (compressionLevel)/switch ((int) compressionLevel)/' \
+  ~/BurnerPad/BurnerPadApp/node_modules/react-native-zip-archive/android/src/main/java/com/rnziparchive/RNZipArchiveModule.java
+
 echo "==> Setting app icons..."
 ICON_SRC=~/BurnerPad/BurnerPad/icon-512.png
 RES_DIR=~/BurnerPad/BurnerPadApp/android/app/src/main/res
