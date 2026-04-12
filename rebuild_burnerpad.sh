@@ -98,10 +98,16 @@ else
   echo "    Icons generated OK"
 fi
 
-echo "==> Building release APK..."
+echo "==> Building release APK and AAB..."
 cd ~/BurnerPad/BurnerPadApp/android
-./gradlew assembleRelease
+./gradlew assembleRelease bundleRelease
 
 echo ""
 echo "==> BUILD COMPLETE"
-echo "    APK: ~/BurnerPad/BurnerPadApp/android/app/build/outputs/apk/release/app-release.apk"
+echo "    APK (sign before GitHub release): ~/BurnerPad/BurnerPadApp/android/app/build/outputs/apk/release/app-release.apk"
+echo "    AAB (upload to Play Store):       ~/BurnerPad/BurnerPadApp/android/app/build/outputs/bundle/release/app-release.aab"
+echo ""
+echo "    Next steps:"
+echo "      1. Sign the APK:  ./sign_release.sh burnerpad <path-to-app-release.apk>"
+echo "      2. Publish signed APK to GitHub releases"
+echo "      3. Upload AAB to Play Console closed test track"
