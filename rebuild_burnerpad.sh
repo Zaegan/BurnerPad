@@ -37,6 +37,8 @@ if [ "$FULL_BUILD" = true ]; then
     $PROJECT_DIR/android/app/build.gradle
   sed -i 's|<string name="app_name">BurnerPadApp</string>|<string name="app_name">BurnerPad</string>|' \
     $PROJECT_DIR/android/app/src/main/res/values/strings.xml
+  sed -i '/signingConfig signingConfigs.debug/d' \
+    $PROJECT_DIR/android/app/build.gradle
   OLD_PKG_DIR=$PROJECT_DIR/android/app/src/main/java/com/burnerpadapp
   mkdir -p $KOTLIN_DIR
   mv $OLD_PKG_DIR/*.kt $KOTLIN_DIR/
