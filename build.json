@@ -1,0 +1,16 @@
+{
+    "react_native_version": "0.84.1",
+    "compile_sdk": 36,
+    "target_sdk": 36,
+    "min_sdk": 24,
+    "dependencies": [
+        "react-native-encrypted-storage",
+        "react-native-fs",
+        "@react-navigation/native",
+        "@react-navigation/native-stack",
+        "react-native-screens",
+        "react-native-safe-area-context",
+        "react-native-zip-archive",
+        "@react-native-documents/picker"
+    ]
+}
