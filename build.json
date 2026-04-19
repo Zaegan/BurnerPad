@@ -4,6 +4,8 @@
     "compile_sdk": 36,
     "target_sdk": 36,
     "min_sdk": 24,
+    "source_dirs": ["src/crypto", "src/storage", "src/screens"],
+    "native_modules": ["Crypto"],
     "dependencies": [
         "react-native-encrypted-storage",
         "react-native-fs",
