@@ -1,19 +1,20 @@
 /**
  * SettingsScreen.js
  *
- * Settings (all PIN-gated):
- * 1. Autosave toggle
- * 2. Change PIN (min 5 chars, re-encrypts all files)
- * 3. Backup — encrypted archive written to Downloads folder
- * 4. Restore — encrypted archive picked via SAF with suppressLock
- * 5. Duress PIN (min 5 chars)
- * 6. Rate This App (Play Store link)
+ * Settings (all PIN-gated except privacy policy link):
+ * 1. Theme (dark / light / system)
+ * 2. Autosave toggle
+ * 3. Change PIN (min 5 chars, re-encrypts all files)
+ * 4. Backup — encrypted archive written to Downloads folder
+ * 5. Restore — encrypted archive picked via SAF with suppressLock
+ * 6. Duress PIN (min 5 chars)
+ * 7. Rate This App (Play Store link)
  *
  * Privacy Policy link is shown in the gate (locked) view — accessible
  * without entering a PIN for legal/trust reasons.
  */
 
-import React, {useState, useRef} from 'react';
+import React, {useState, useRef, useMemo} from 'react';
 import {
   View, Text, TextInput, TouchableOpacity, ScrollView,
   StyleSheet, Alert, KeyboardAvoidingView, Platform,
@@ -23,7 +24,8 @@ import {pick, keepLocalCopy, types, isCancel} from '@react-native-documents/pick
 import RNFS from 'react-native-fs';
 import CryptoManager from '../crypto/CryptoManager';
 import StorageManager from '../storage/StorageManager';
-import {setSuppressLock} from '../../App';
+import {setSuppressLock, setAppTheme} from '../../App';
+import {useTheme} from '../theme/ThemeContext';
 
 const DURESS_PHRASE = 'ONLY FOR DURESS';
 const MIN_PIN       = CryptoManager.MIN_PIN_LENGTH;
@@ -33,6 +35,7 @@ export default function SettingsScreen({navigation}) {
   const [gateError, setGateError]   = useState('');
   const [isUnlocked, setIsUnlocked] = useState(false);
 
+  const [themeMode, setThemeMode] = useState('dark');
   const [autosave, setAutosave] = useState(false);
 
   const [currentPin, setCurrentPin]               = useState('');
@@ -68,13 +71,23 @@ export default function SettingsScreen({navigation}) {
   const confirmDuressRef = useRef(null);
   const phraseRef        = useRef(null);
 
+  const t = useTheme();
+  const styles = useMemo(() => makeStyles(t), [t]);
+
   async function handleGateSubmit() {
     setGateError('');
     const ok = await CryptoManager.confirmRealPin(gatePin);
     if (!ok) { setGateError('Incorrect PIN.'); setGatePin(''); return; }
     setHasDuress(await CryptoManager.hasDuressPin());
     setAutosave(await CryptoManager.getAutosave());
+    const savedMode = await CryptoManager.getTheme();
+    setThemeMode(savedMode);
     setIsUnlocked(true);
+  }
+
+  function handleThemeChange(mode) {
+    setThemeMode(mode);
+    setAppTheme(mode);
   }
 
   async function handleAutosaveToggle(value) {
@@ -261,7 +274,7 @@ export default function SettingsScreen({navigation}) {
             style={styles.input}
             value={gatePin}
             onChangeText={text => {setGatePin(text); setGateError('');}}
-            placeholder="PIN" placeholderTextColor="#333"
+            placeholder="PIN" placeholderTextColor={t.textGhost}
             secureTextEntry autoFocus autoCapitalize="none" autoCorrect={false}
             returnKeyType="go" onSubmitEditing={handleGateSubmit}
           />
@@ -287,6 +300,20 @@ export default function SettingsScreen({navigation}) {
         </TouchableOpacity>
         <Text style={styles.sectionTitle}>Settings</Text>
 
+        {/* Theme */}
+        <View style={styles.card}>
+          <Text style={styles.cardTitle}>Theme</Text>
+          <View style={styles.themeRow}>
+            {['dark', 'light', 'system'].map(m => (
+              <TouchableOpacity key={m} onPress={() => handleThemeChange(m)} style={styles.themeOption}>
+                <Text style={[styles.themeOptionText, themeMode === m && styles.themeOptionActive]}>
+                  {m}
+                </Text>
+              </TouchableOpacity>
+            ))}
+          </View>
+        </View>
+
         {/* Autosave */}
         <View style={styles.card}>
           <View style={styles.toggleRow}>
@@ -299,8 +326,8 @@ export default function SettingsScreen({navigation}) {
             </View>
             <Switch
               value={autosave} onValueChange={handleAutosaveToggle}
-              trackColor={{false: '#1a1a1a', true: '#3a3a3a'}}
-              thumbColor={autosave ? '#888' : '#333'}
+              trackColor={{false: t.border, true: t.borderStrong}}
+              thumbColor={autosave ? t.textMuted : t.textGhost}
             />
           </View>
         </View>
@@ -324,7 +351,7 @@ export default function SettingsScreen({navigation}) {
                 style={styles.input}
                 value={field.value}
                 onChangeText={text => { field.set(text); setPinChangeError(''); }}
-                placeholder={field.placeholder} placeholderTextColor="#333"
+                placeholder={field.placeholder} placeholderTextColor={t.textGhost}
                 secureTextEntry autoCapitalize="none" autoCorrect={false}
                 returnKeyType={field.ref === confirmNewPinRef ? 'done' : 'next'}
                 onSubmitEditing={field.next}
@@ -336,7 +363,7 @@ export default function SettingsScreen({navigation}) {
           <TouchableOpacity
             style={[styles.button, isChangingPin && styles.buttonDisabled]}
             onPress={handleChangePin} disabled={isChangingPin}>
-            {isChangingPin ? <ActivityIndicator color="#555" /> : <Text style={styles.buttonText}>change PIN</Text>}
+            {isChangingPin ? <ActivityIndicator color={t.textDimmer} /> : <Text style={styles.buttonText}>change PIN</Text>}
           </TouchableOpacity>
         </View>
 
@@ -371,7 +398,7 @@ export default function SettingsScreen({navigation}) {
           <TouchableOpacity
             style={[styles.button, isExporting && styles.buttonDisabled]}
             onPress={handleExport} disabled={isExporting}>
-            {isExporting ? <ActivityIndicator color="#555" /> : <Text style={styles.buttonText}>create backup</Text>}
+            {isExporting ? <ActivityIndicator color={t.textDimmer} /> : <Text style={styles.buttonText}>create backup</Text>}
           </TouchableOpacity>
         </View>
 
@@ -398,7 +425,7 @@ export default function SettingsScreen({navigation}) {
           <TouchableOpacity
             style={[styles.button, isRestoring && styles.buttonDisabled]}
             onPress={handleRestore} disabled={isRestoring}>
-            {isRestoring ? <ActivityIndicator color="#555" /> : <Text style={styles.buttonText}>choose archive file</Text>}
+            {isRestoring ? <ActivityIndicator color={t.textDimmer} /> : <Text style={styles.buttonText}>choose archive file</Text>}
           </TouchableOpacity>
         </View>
 
@@ -433,7 +460,7 @@ export default function SettingsScreen({navigation}) {
                 style={styles.input}
                 value={duressPin}
                 onChangeText={text => { setDuressPin(text); setFormError(''); }}
-                placeholder="choose a duress PIN" placeholderTextColor="#333"
+                placeholder="choose a duress PIN" placeholderTextColor={t.textGhost}
                 secureTextEntry autoCapitalize="none" autoCorrect={false}
                 returnKeyType="next" onSubmitEditing={() => confirmDuressRef.current?.focus()}
               />
@@ -443,7 +470,7 @@ export default function SettingsScreen({navigation}) {
                 style={styles.input}
                 value={confirmDuressPin}
                 onChangeText={text => { setConfirmDuressPin(text); setFormError(''); }}
-                placeholder="repeat duress PIN" placeholderTextColor="#333"
+                placeholder="repeat duress PIN" placeholderTextColor={t.textGhost}
                 secureTextEntry autoCapitalize="none" autoCorrect={false}
                 returnKeyType="next" onSubmitEditing={() => phraseRef.current?.focus()}
               />
@@ -458,7 +485,7 @@ export default function SettingsScreen({navigation}) {
             style={styles.input}
             value={confirmPhrase}
             onChangeText={text => { setConfirmPhrase(text); setFormError(''); }}
-            placeholder="ONLY FOR DURESS" placeholderTextColor="#333"
+            placeholder="ONLY FOR DURESS" placeholderTextColor={t.textGhost}
             autoCapitalize="characters" autoCorrect={false} returnKeyType="done"
             onSubmitEditing={mode === 'set' ? handleSetDuress : handleRemoveDuress}
           />
@@ -507,35 +534,41 @@ export default function SettingsScreen({navigation}) {
   );
 }
 
-const styles = StyleSheet.create({
-  container:     {flex: 1, backgroundColor: '#0d0d0d'},
-  inner:         {flexGrow: 1, paddingHorizontal: 28, paddingTop: 56, paddingBottom: 48},
-  backRow:       {marginBottom: 32},
-  backButton:    {color: '#444', fontFamily: 'Courier New', fontSize: 13, letterSpacing: 1},
-  sectionTitle:  {color: '#333', fontSize: 11, letterSpacing: 4, fontFamily: 'Courier New', marginBottom: 32},
-  gateLabel:     {color: '#555', fontFamily: 'Courier New', fontSize: 13, marginBottom: 20},
-  card:          {borderWidth: 1, borderColor: '#1a1a1a', padding: 24, marginBottom: 24},
-  toggleRow:     {flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 16},
-  toggleLabel:   {flex: 1},
-  cardTitle:     {color: '#666', fontFamily: 'Courier New', fontSize: 12, letterSpacing: 2, marginBottom: 10},
-  cardBody:      {color: '#444', fontFamily: 'Courier New', fontSize: 12, lineHeight: 20},
-  modeRow:       {flexDirection: 'row', alignItems: 'center', marginBottom: 20, marginTop: 16, gap: 12},
-  modeBtn:       {color: '#333', fontFamily: 'Courier New', fontSize: 12, letterSpacing: 1},
-  modeBtnActive: {color: '#888'},
-  fieldLabel:    {color: '#444', fontFamily: 'Courier New', fontSize: 11, letterSpacing: 1, marginBottom: 8, marginTop: 16},
-  input:         {borderBottomWidth: 1, borderBottomColor: '#1e1e1e', color: '#c0c0c0', fontSize: 14, paddingVertical: 8, fontFamily: 'Courier New', letterSpacing: 1},
-  passwordRow:   {flexDirection: 'row', alignItems: 'center'},
-  passwordInput: {flex: 1},
-  eyeBtn:        {paddingHorizontal: 8, paddingVertical: 8},
-  eyeText:       {fontSize: 16},
-  mono:          {color: '#555', fontFamily: 'Courier New'},
-  error:         {color: '#7a3a3a', fontFamily: 'Courier New', fontSize: 12, marginTop: 12},
-  progress:      {color: '#555', fontFamily: 'Courier New', fontSize: 11, marginTop: 8, letterSpacing: 1},
-  button:        {marginTop: 24, paddingVertical: 12, paddingHorizontal: 20, borderWidth: 1, borderColor: '#1e1e1e', alignSelf: 'flex-start'},
-  buttonDanger:  {borderColor: '#3a1a1a'},
-  buttonDisabled:{opacity: 0.4},
-  buttonText:    {color: '#777', fontFamily: 'Courier New', fontSize: 12, letterSpacing: 2},
-  footnote:      {color: '#2a2a2a', fontFamily: 'Courier New', fontSize: 11, lineHeight: 18, marginTop: 20},
-  privacyLink:   {alignSelf: 'center', marginTop: 32, paddingVertical: 8},
-  privacyLinkText:{color: '#2a2a2a', fontFamily: 'Courier New', fontSize: 11, letterSpacing: 2},
-});
+function makeStyles(t) {
+  return StyleSheet.create({
+    container:        {flex: 1, backgroundColor: t.bg},
+    inner:            {flexGrow: 1, paddingHorizontal: 28, paddingTop: 56, paddingBottom: 48},
+    backRow:          {marginBottom: 32},
+    backButton:       {color: t.textFaint, fontFamily: 'Courier New', fontSize: 13, letterSpacing: 1},
+    sectionTitle:     {color: t.textGhost, fontSize: 11, letterSpacing: 4, fontFamily: 'Courier New', marginBottom: 32},
+    gateLabel:        {color: t.textDimmer, fontFamily: 'Courier New', fontSize: 13, marginBottom: 20},
+    card:             {borderWidth: 1, borderColor: t.border, padding: 24, marginBottom: 24},
+    toggleRow:        {flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 16},
+    toggleLabel:      {flex: 1},
+    cardTitle:        {color: t.textDim, fontFamily: 'Courier New', fontSize: 12, letterSpacing: 2, marginBottom: 10},
+    cardBody:         {color: t.textFaint, fontFamily: 'Courier New', fontSize: 12, lineHeight: 20},
+    themeRow:         {flexDirection: 'row', gap: 24, marginTop: 4},
+    themeOption:      {paddingVertical: 4},
+    themeOptionText:  {color: t.textGhost, fontFamily: 'Courier New', fontSize: 12, letterSpacing: 2},
+    themeOptionActive:{color: t.text},
+    modeRow:          {flexDirection: 'row', alignItems: 'center', marginBottom: 20, marginTop: 16, gap: 12},
+    modeBtn:          {color: t.textGhost, fontFamily: 'Courier New', fontSize: 12, letterSpacing: 1},
+    modeBtnActive:    {color: t.textMuted},
+    fieldLabel:       {color: t.textFaint, fontFamily: 'Courier New', fontSize: 11, letterSpacing: 1, marginBottom: 8, marginTop: 16},
+    input:            {borderBottomWidth: 1, borderBottomColor: t.border, color: t.textSub, fontSize: 14, paddingVertical: 8, fontFamily: 'Courier New', letterSpacing: 1},
+    passwordRow:      {flexDirection: 'row', alignItems: 'center'},
+    passwordInput:    {flex: 1},
+    eyeBtn:           {paddingHorizontal: 8, paddingVertical: 8},
+    eyeText:          {fontSize: 16},
+    mono:             {color: t.textDimmer, fontFamily: 'Courier New'},
+    error:            {color: t.errorMuted, fontFamily: 'Courier New', fontSize: 12, marginTop: 12},
+    progress:         {color: t.textDimmer, fontFamily: 'Courier New', fontSize: 11, marginTop: 8, letterSpacing: 1},
+    button:           {marginTop: 24, paddingVertical: 12, paddingHorizontal: 20, borderWidth: 1, borderColor: t.borderMid, alignSelf: 'flex-start'},
+    buttonDanger:     {borderColor: t.errorMuted},
+    buttonDisabled:   {opacity: 0.4},
+    buttonText:       {color: t.textMuted, fontFamily: 'Courier New', fontSize: 12, letterSpacing: 2},
+    footnote:         {color: t.textMicro, fontFamily: 'Courier New', fontSize: 11, lineHeight: 18, marginTop: 20},
+    privacyLink:      {alignSelf: 'center', marginTop: 32, paddingVertical: 8},
+    privacyLinkText:  {color: t.textMicro, fontFamily: 'Courier New', fontSize: 11, letterSpacing: 2},
+  });
+}

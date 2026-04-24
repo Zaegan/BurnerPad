@@ -47,8 +47,10 @@ const KEYS = {
   DERIVE_SALT: 'burnerpad_derive_salt',
   DURESS_HASH: 'burnerpad_duress_hash',
   DURESS_SALT: 'burnerpad_duress_salt',
-  INITIALIZED: 'burnerpad_initialized',
-  AUTOSAVE:    'burnerpad_autosave',
+  INITIALIZED:       'burnerpad_initialized',
+  AUTOSAVE:          'burnerpad_autosave',
+  THEME:             'burnerpad_theme',
+  WALKTHROUGH_SEEN:  'burnerpad_walkthrough_seen',
 };
 
 // ── Session key (in-memory only, never persisted) ────────────────────────────
@@ -244,6 +246,36 @@ const CryptoManager = {
 
   async setAutosave(enabled) {
     await EncryptedStorage.setItem(KEYS.AUTOSAVE, enabled ? 'true' : 'false');
+  },
+
+  // ── Theme preference ─────────────────────────────────────────────────────
+
+  async getTheme() {
+    try {
+      const val = await EncryptedStorage.getItem(KEYS.THEME);
+      return val || 'dark';
+    } catch {
+      return 'dark';
+    }
+  },
+
+  async setTheme(mode) {
+    await EncryptedStorage.setItem(KEYS.THEME, mode);
+  },
+
+  // ── Walkthrough seen flag ────────────────────────────────────────────────
+
+  async getWalkthroughSeen() {
+    try {
+      const val = await EncryptedStorage.getItem(KEYS.WALKTHROUGH_SEEN);
+      return val === 'true';
+    } catch {
+      return false;
+    }
+  },
+
+  async setWalkthroughSeen() {
+    await EncryptedStorage.setItem(KEYS.WALKTHROUGH_SEEN, 'true');
   },
 
   // ── File encryption / decryption ─────────────────────────────────────────

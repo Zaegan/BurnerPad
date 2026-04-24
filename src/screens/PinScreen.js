@@ -15,13 +15,14 @@
  * used instead. Duress always hard-resets to a fresh FileBrowser.
  */
 
-import React, {useState, useRef, useEffect} from 'react';
+import React, {useState, useRef, useEffect, useMemo} from 'react';
 import {
   View, Text, TextInput, TouchableOpacity,
   StyleSheet, Animated, KeyboardAvoidingView, Platform,
 } from 'react-native';
 import CryptoManager from '../crypto/CryptoManager';
 import StorageManager from '../storage/StorageManager';
+import {useTheme} from '../theme/ThemeContext';
 
 const WRONG_ATTEMPTS_BEFORE_HINT = 5;
 const NO_PIN = '12345';
@@ -35,6 +36,8 @@ export default function PinScreen({navigation}) {
   const [isChecking, setIsChecking]     = useState(true);
   const shakeAnim = useRef(new Animated.Value(0)).current;
   const inputRef  = useRef(null);
+  const t = useTheme();
+  const styles = useMemo(() => makeStyles(t), [t]);
 
   useEffect(() => {
     (async () => {
@@ -116,7 +119,7 @@ export default function PinScreen({navigation}) {
             onChangeText={setPin}
             onSubmitEditing={handleSubmit}
             placeholder="enter PIN"
-            placeholderTextColor="#555"
+            placeholderTextColor={t.textDimmer}
             secureTextEntry
             autoCapitalize="none"
             autoCorrect={false}
@@ -144,17 +147,19 @@ export default function PinScreen({navigation}) {
   );
 }
 
-const styles = StyleSheet.create({
-  container:    {flex: 1, backgroundColor: '#0d0d0d'},
-  inner:        {flex: 1, justifyContent: 'center', alignItems: 'center', paddingHorizontal: 40},
-  logo:         {fontSize: 36, fontWeight: '200', color: '#e8e8e8', letterSpacing: 6, marginBottom: 6, fontFamily: 'Courier New'},
-  tagline:      {fontSize: 11, color: '#444', letterSpacing: 3, marginBottom: 60, fontFamily: 'Courier New'},
-  inputRow:     {width: '100%', marginBottom: 16},
-  pinInput:     {width: '100%', borderBottomWidth: 1, borderBottomColor: '#333', color: '#e8e8e8', fontSize: 18, paddingVertical: 12, textAlign: 'center', fontFamily: 'Courier New', letterSpacing: 4},
-  error:        {color: '#c0392b', fontSize: 13, marginBottom: 16, fontFamily: 'Courier New'},
-  button:       {marginTop: 8, paddingVertical: 12, paddingHorizontal: 40, borderWidth: 1, borderColor: '#333'},
-  buttonDisabled: {opacity: 0.4},
-  buttonText:   {color: '#e8e8e8', fontSize: 13, letterSpacing: 3, fontFamily: 'Courier New'},
-  hintBox:      {position: 'absolute', bottom: 48, left: 40, right: 40, borderTopWidth: 1, borderTopColor: '#1e1e1e', paddingTop: 16},
-  hintText:     {color: '#444', fontSize: 11, lineHeight: 18, textAlign: 'center', fontFamily: 'Courier New'},
-});
+function makeStyles(t) {
+  return StyleSheet.create({
+    container:      {flex: 1, backgroundColor: t.bg},
+    inner:          {flex: 1, justifyContent: 'center', alignItems: 'center', paddingHorizontal: 40},
+    logo:           {fontSize: 36, fontWeight: '200', color: t.text, letterSpacing: 6, marginBottom: 6, fontFamily: 'Courier New'},
+    tagline:        {fontSize: 11, color: t.textFaint, letterSpacing: 3, marginBottom: 60, fontFamily: 'Courier New'},
+    inputRow:       {width: '100%', marginBottom: 16},
+    pinInput:       {width: '100%', borderBottomWidth: 1, borderBottomColor: t.borderFocus, color: t.text, fontSize: 18, paddingVertical: 12, textAlign: 'center', fontFamily: 'Courier New', letterSpacing: 4},
+    error:          {color: t.error, fontSize: 13, marginBottom: 16, fontFamily: 'Courier New'},
+    button:         {marginTop: 8, paddingVertical: 12, paddingHorizontal: 40, borderWidth: 1, borderColor: t.borderFocus},
+    buttonDisabled: {opacity: 0.4},
+    buttonText:     {color: t.text, fontSize: 13, letterSpacing: 3, fontFamily: 'Courier New'},
+    hintBox:        {position: 'absolute', bottom: 48, left: 40, right: 40, borderTopWidth: 1, borderTopColor: t.border, paddingTop: 16},
+    hintText:       {color: t.textFaint, fontSize: 11, lineHeight: 18, textAlign: 'center', fontFamily: 'Courier New'},
+  });
+}

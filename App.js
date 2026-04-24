@@ -11,15 +11,19 @@
  * Exports:
  * - setSuppressLock(bool): suppress locking during SAF operations
  * - requirePin(): force PIN re-entry from any screen
+ * - setAppTheme(mode): update active theme ('dark'|'light'|'system')
  */
 
-import React, {useEffect, useState, useRef} from 'react';
-import {AppState, View, ActivityIndicator, StyleSheet} from 'react-native';
+import React, {useEffect, useState, useRef, useMemo} from 'react';
+import {AppState, View, ActivityIndicator, StyleSheet, useColorScheme} from 'react-native';
 import {NavigationContainer, StackActions} from '@react-navigation/native';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import CryptoManager from './src/crypto/CryptoManager';
 import MigrationManager from './src/crypto/MigrationManager';
+import {ThemeProvider} from './src/theme/ThemeContext';
+import {dark, light} from './src/theme/themes';
 import OnboardingScreen from './src/screens/OnboardingScreen';
+import WalkthroughScreen from './src/screens/WalkthroughScreen';
 import PinScreen from './src/screens/PinScreen';
 import FileBrowserScreen from './src/screens/FileBrowserScreen';
 import EditorScreen from './src/screens/EditorScreen';
@@ -58,16 +62,41 @@ export function requirePin() {
   }
 }
 
+// ── Global theme setter ───────────────────────────────────────────────────────
+
+let _setThemeModeFn = null;
+
+export function setAppTheme(mode) {
+  CryptoManager.setTheme(mode);
+  if (_setThemeModeFn) _setThemeModeFn(mode);
+}
+
 // ── App ───────────────────────────────────────────────────────────────────────
 
 export default function App() {
   const [initialRoute, setInitialRoute] = useState(null);
+  const [themeMode, setThemeMode]       = useState('dark');
   const navigationRef                   = useRef(null);
   const appState                        = useRef(AppState.currentState);
+  const systemScheme                    = useColorScheme();
+
+  const theme = useMemo(() => {
+    if (themeMode === 'system') return systemScheme === 'light' ? light : dark;
+    return themeMode === 'light' ? light : dark;
+  }, [themeMode, systemScheme]);
+
+  useEffect(() => {
+    _setThemeModeFn = setThemeMode;
+    return () => { _setThemeModeFn = null; };
+  }, []);
 
   useEffect(() => {
     (async () => {
-      const initialized = await CryptoManager.isInitialized();
+      const [initialized, savedMode] = await Promise.all([
+        CryptoManager.isInitialized(),
+        CryptoManager.getTheme(),
+      ]);
+      setThemeMode(savedMode);
       if (!initialized) {
         setInitialRoute('Onboarding');
         return;
@@ -115,36 +144,38 @@ export default function App() {
 
   if (!initialRoute) {
     return (
-      <View style={styles.loading}>
-        <ActivityIndicator color="#333" />
+      <View style={[styles.loading, {backgroundColor: theme.bg}]}>
+        <ActivityIndicator color={theme.textDimmer} />
       </View>
     );
   }
 
   return (
-    <NavigationContainer ref={navigationRef} onReady={onNavigationReady}>
-      <Stack.Navigator
-        initialRouteName={initialRoute}
-        screenOptions={{
-          headerShown:  false,
-          animation:    'fade',
-          contentStyle: {backgroundColor: '#0d0d0d'},
-        }}>
-        <Stack.Screen name="Onboarding"  component={OnboardingScreen} />
-        <Stack.Screen name="Pin"         component={PinScreen} />
-        <Stack.Screen name="FileBrowser" component={FileBrowserScreen} />
-        <Stack.Screen name="Editor"      component={EditorScreen} />
-        <Stack.Screen name="Settings"    component={SettingsScreen} />
-      </Stack.Navigator>
-    </NavigationContainer>
+    <ThemeProvider theme={theme}>
+      <NavigationContainer ref={navigationRef} onReady={onNavigationReady}>
+        <Stack.Navigator
+          initialRouteName={initialRoute}
+          screenOptions={{
+            headerShown:  false,
+            animation:    'fade',
+            contentStyle: {backgroundColor: theme.bg},
+          }}>
+          <Stack.Screen name="Onboarding"  component={OnboardingScreen} />
+          <Stack.Screen name="Walkthrough" component={WalkthroughScreen} />
+          <Stack.Screen name="Pin"         component={PinScreen} />
+          <Stack.Screen name="FileBrowser" component={FileBrowserScreen} />
+          <Stack.Screen name="Editor"      component={EditorScreen} />
+          <Stack.Screen name="Settings"    component={SettingsScreen} />
+        </Stack.Navigator>
+      </NavigationContainer>
+    </ThemeProvider>
   );
 }
 
 const styles = StyleSheet.create({
   loading: {
-    flex:            1,
-    backgroundColor: '#0d0d0d',
-    justifyContent:  'center',
-    alignItems:      'center',
+    flex:           1,
+    justifyContent: 'center',
+    alignItems:     'center',
   },
 });

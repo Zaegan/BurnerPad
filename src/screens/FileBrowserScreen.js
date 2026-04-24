@@ -9,7 +9,7 @@
  * Import: uses SAF pick + keepLocalCopy with suppressLock.
  */
 
-import React, {useState, useCallback} from 'react';
+import React, {useState, useCallback, useMemo} from 'react';
 import {
   View, Text, FlatList, TouchableOpacity, TouchableHighlight,
   StyleSheet, Alert, TextInput, Modal,
@@ -19,6 +19,7 @@ import {pick, keepLocalCopy, types, isCancel} from '@react-native-documents/pick
 import RNFS from 'react-native-fs';
 import StorageManager from '../storage/StorageManager';
 import {setSuppressLock} from '../../App';
+import {useTheme} from '../theme/ThemeContext';
 
 export default function FileBrowserScreen({navigation, route}) {
   const currentPath = route.params?.path ?? '';
@@ -41,6 +42,9 @@ export default function FileBrowserScreen({navigation, route}) {
   const [importContent, setImportContent] = useState('');
   const [importError, setImportError]     = useState('');
   const [isImporting, setIsImporting]     = useState(false);
+
+  const t = useTheme();
+  const styles = useMemo(() => makeStyles(t), [t]);
 
   useFocusEffect(useCallback(() => { loadItems(); }, [currentPath]));
 
@@ -300,7 +304,7 @@ export default function FileBrowserScreen({navigation, route}) {
           data={items}
           keyExtractor={item => item.path}
           renderItem={({item}) => (
-            <TouchableHighlight underlayColor="#1a1a1a" onPress={() => handleTap(item)} onLongPress={() => handleLongPress(item)}>
+            <TouchableHighlight underlayColor={t.highlight} onPress={() => handleTap(item)} onLongPress={() => handleLongPress(item)}>
               <View style={styles.item}>
                 <Text style={styles.itemIcon}>{item.isDirectory ? '📁' : '·'}</Text>
                 <Text style={styles.itemName}>{item.name}</Text>
@@ -321,7 +325,7 @@ export default function FileBrowserScreen({navigation, route}) {
               value={createName}
               onChangeText={text => {setCreateName(text); setCreateError('');}}
               placeholder={createMode === 'directory' ? 'folder name' : 'filename (e.g. todo.txt)'}
-              placeholderTextColor="#444"
+              placeholderTextColor={t.textFaint}
               autoFocus autoCapitalize="none" autoCorrect={false} returnKeyType="done"
               onSubmitEditing={handleCreate}
             />
@@ -391,28 +395,30 @@ export default function FileBrowserScreen({navigation, route}) {
   );
 }
 
-const styles = StyleSheet.create({
-  container:     {flex: 1, backgroundColor: '#0d0d0d'},
-  header:        {flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 20, paddingTop: 56, paddingBottom: 16, borderBottomWidth: 1, borderBottomColor: '#1a1a1a'},
-  headerLeft:    {flexDirection: 'row', alignItems: 'center', gap: 12},
-  upBtn:         {paddingRight: 4},
-  upBtnText:     {color: '#555', fontSize: 20, fontFamily: 'Courier New'},
-  title:         {color: '#e8e8e8', fontSize: 16, letterSpacing: 3, fontFamily: 'Courier New', fontWeight: '200'},
-  headerRight:   {flexDirection: 'row', gap: 12},
-  headerBtn:     {paddingVertical: 4, paddingHorizontal: 2},
-  headerBtnText: {color: '#555', fontSize: 11, fontFamily: 'Courier New', letterSpacing: 1},
-  empty:         {flex: 1, justifyContent: 'center', alignItems: 'center'},
-  emptyText:     {color: '#2a2a2a', fontFamily: 'Courier New', fontSize: 13, letterSpacing: 3},
-  item:          {flexDirection: 'row', alignItems: 'center', paddingHorizontal: 20, paddingVertical: 16, gap: 14},
-  itemIcon:      {fontSize: 16, width: 20},
-  itemName:      {color: '#c0c0c0', fontSize: 14, fontFamily: 'Courier New', letterSpacing: 1},
-  separator:     {height: 1, backgroundColor: '#141414', marginLeft: 54},
-  modalOverlay:  {flex: 1, backgroundColor: 'rgba(0,0,0,0.85)', justifyContent: 'center', paddingHorizontal: 32},
-  modalBox:      {backgroundColor: '#111', padding: 28, borderWidth: 1, borderColor: '#1e1e1e'},
-  modalTitle:    {color: '#555', fontSize: 11, letterSpacing: 3, fontFamily: 'Courier New', marginBottom: 20},
-  modalInput:    {borderBottomWidth: 1, borderBottomColor: '#2a2a2a', color: '#e8e8e8', fontSize: 15, paddingVertical: 8, fontFamily: 'Courier New', marginBottom: 8},
-  modalError:    {color: '#7a3a3a', fontSize: 11, fontFamily: 'Courier New', marginBottom: 8},
-  modalActions:  {flexDirection: 'row', justifyContent: 'flex-end', gap: 20, marginTop: 16},
-  modalBtn:      {paddingVertical: 6, paddingHorizontal: 4},
-  modalBtnText:  {color: '#666', fontSize: 12, fontFamily: 'Courier New', letterSpacing: 2},
-});
+function makeStyles(t) {
+  return StyleSheet.create({
+    container:     {flex: 1, backgroundColor: t.bg},
+    header:        {flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 20, paddingTop: 56, paddingBottom: 16, borderBottomWidth: 1, borderBottomColor: t.border},
+    headerLeft:    {flexDirection: 'row', alignItems: 'center', gap: 12},
+    upBtn:         {paddingRight: 4},
+    upBtnText:     {color: t.textDimmer, fontSize: 20, fontFamily: 'Courier New'},
+    title:         {color: t.text, fontSize: 16, letterSpacing: 3, fontFamily: 'Courier New', fontWeight: '200'},
+    headerRight:   {flexDirection: 'row', gap: 12},
+    headerBtn:     {paddingVertical: 4, paddingHorizontal: 2},
+    headerBtnText: {color: t.textDimmer, fontSize: 11, fontFamily: 'Courier New', letterSpacing: 1},
+    empty:         {flex: 1, justifyContent: 'center', alignItems: 'center'},
+    emptyText:     {color: t.textTiny, fontFamily: 'Courier New', fontSize: 13, letterSpacing: 3},
+    item:          {flexDirection: 'row', alignItems: 'center', paddingHorizontal: 20, paddingVertical: 16, gap: 14, backgroundColor: t.bg},
+    itemIcon:      {fontSize: 16, width: 20},
+    itemName:      {color: t.textSub, fontSize: 14, fontFamily: 'Courier New', letterSpacing: 1},
+    separator:     {height: 1, backgroundColor: t.border, marginLeft: 54},
+    modalOverlay:  {flex: 1, backgroundColor: t.overlay, justifyContent: 'center', paddingHorizontal: 32},
+    modalBox:      {backgroundColor: t.surface, padding: 28, borderWidth: 1, borderColor: t.borderMid},
+    modalTitle:    {color: t.textDimmer, fontSize: 11, letterSpacing: 3, fontFamily: 'Courier New', marginBottom: 20},
+    modalInput:    {borderBottomWidth: 1, borderBottomColor: t.borderStrong, color: t.text, fontSize: 15, paddingVertical: 8, fontFamily: 'Courier New', marginBottom: 8},
+    modalError:    {color: t.errorMuted, fontSize: 11, fontFamily: 'Courier New', marginBottom: 8},
+    modalActions:  {flexDirection: 'row', justifyContent: 'flex-end', gap: 20, marginTop: 16},
+    modalBtn:      {paddingVertical: 6, paddingHorizontal: 4},
+    modalBtnText:  {color: t.textDim, fontSize: 12, fontFamily: 'Courier New', letterSpacing: 2},
+  });
+}

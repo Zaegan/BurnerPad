@@ -20,7 +20,7 @@
  * - requirePin() is called to force re-login
  */
 
-import React, {useState, useEffect, useRef} from 'react';
+import React, {useState, useEffect, useRef, useMemo} from 'react';
 import {
   View, Text, TextInput, StyleSheet,
   TouchableOpacity, TouchableWithoutFeedback,
@@ -30,6 +30,7 @@ import RNFS from 'react-native-fs';
 import StorageManager from '../storage/StorageManager';
 import CryptoManager from '../crypto/CryptoManager';
 import {requirePin, registerBeforeLock, unregisterBeforeLock} from '../../App';
+import {useTheme} from '../theme/ThemeContext';
 
 const SHADOW_DELAY   = 3000;
 const AUTOSAVE_DELAY = 800;
@@ -75,6 +76,9 @@ export default function EditorScreen({navigation, route}) {
   const latestPath    = useRef(notePath);
   const isDirtyRef    = useRef(false);
   const autosaveRef   = useRef(false);
+
+  const t = useTheme();
+  const styles = useMemo(() => makeStyles(t), [t]);
 
   useEffect(() => { isDirtyRef.current = isDirty; }, [isDirty]);
   useEffect(() => { autosaveRef.current = autosave; }, [autosave]);
@@ -478,7 +482,7 @@ export default function EditorScreen({navigation, route}) {
             autoCorrect={true}
             spellCheck={true}
             placeholder="start typing…"
-            placeholderTextColor="#2a2a2a"
+            placeholderTextColor={t.textTiny}
             disableFullscreenUI={true}
           />
         )}
@@ -569,7 +573,7 @@ export default function EditorScreen({navigation, route}) {
               value={saveAsDir}
               onChangeText={text => {setSaveAsDir(text); setSaveAsError('');}}
               placeholder="leave empty for root"
-              placeholderTextColor="#333"
+              placeholderTextColor={t.textGhost}
               autoCapitalize="none" autoCorrect={false} returnKeyType="done"
               onSubmitEditing={confirmSaveAs}
             />
@@ -592,51 +596,52 @@ export default function EditorScreen({navigation, route}) {
   );
 }
 
-const styles = StyleSheet.create({
-  container:      {flex: 1, backgroundColor: '#0d0d0d'},
-  header:         {flexDirection: 'row', alignItems: 'center', paddingHorizontal: 20, paddingTop: 56, paddingBottom: 14, borderBottomWidth: 1, borderBottomColor: '#141414', gap: 10},
-  upBtn:          {paddingRight: 4},
-  upBtnText:      {color: '#555', fontSize: 20, fontFamily: 'Courier New'},
-  titleContainer: {flex: 1},
-  title:          {color: '#777', fontSize: 13, fontFamily: 'Courier New', letterSpacing: 2},
-  autosavedLabel: {color: '#2a2a2a', fontSize: 11, fontFamily: 'Courier New', letterSpacing: 1},
-  saveBtn:        {paddingVertical: 4, paddingHorizontal: 2},
-  saveBtnText:    {color: '#555', fontSize: 12, fontFamily: 'Courier New', letterSpacing: 1},
-  menuBtn:        {paddingVertical: 4, paddingHorizontal: 4},
-  menuBtnText:    {color: '#555', fontSize: 16, letterSpacing: 2, fontFamily: 'Courier New'},
-  scrollView:     {flex: 1},
-  scrollContent:  {flexGrow: 1},
-  editor:         {
-    flex: 1,
-    color: '#d8d8d8',
-    fontSize: 15,
-    lineHeight: 24,
-    paddingHorizontal: 24,
-    paddingTop: 24,
-    paddingBottom: 8,
-    fontFamily: 'Courier New',
-    letterSpacing: 0.3,
-    // No fixed height — grows with content
-    minHeight: '100%',
-  },
-  footer:         {flexDirection: 'row', justifyContent: 'space-between', paddingHorizontal: 24, paddingVertical: 10, borderTopWidth: 1, borderTopColor: '#141414'},
-  footerText:     {color: '#2a2a2a', fontSize: 11, fontFamily: 'Courier New', letterSpacing: 1},
-  menuOverlay:    {flex: 1, backgroundColor: 'transparent'},
-  menuBox:        {position: 'absolute', top: 100, right: 16, backgroundColor: '#161616', borderWidth: 1, borderColor: '#2a2a2a', minWidth: 140, elevation: 8},
-  menuItem:       {paddingVertical: 14, paddingHorizontal: 20},
-  menuItemText:   {color: '#c0c0c0', fontSize: 13, fontFamily: 'Courier New', letterSpacing: 1},
-  menuItemDanger: {color: '#7a3a3a'},
-  menuDivider:    {height: 1, backgroundColor: '#1e1e1e'},
-  modalOverlay:   {flex: 1, backgroundColor: 'rgba(0,0,0,0.85)', justifyContent: 'center', paddingHorizontal: 32},
-  modalBox:       {backgroundColor: '#111', padding: 28, borderWidth: 1, borderColor: '#1e1e1e'},
-  modalTitle:     {color: '#555', fontSize: 11, letterSpacing: 3, fontFamily: 'Courier New', marginBottom: 16},
-  fieldLabel:     {color: '#444', fontSize: 11, letterSpacing: 1, fontFamily: 'Courier New', marginBottom: 6, marginTop: 12},
-  dirRow:         {flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: 12, marginBottom: 6},
-  resetBtnText:   {color: '#444', fontSize: 11, fontFamily: 'Courier New', letterSpacing: 1},
-  dirHint:        {color: '#2a2a2a', fontSize: 10, fontFamily: 'Courier New', lineHeight: 16, marginTop: 6},
-  modalInput:     {borderBottomWidth: 1, borderBottomColor: '#2a2a2a', color: '#e8e8e8', fontSize: 15, paddingVertical: 8, fontFamily: 'Courier New', marginBottom: 4},
-  modalError:     {color: '#7a3a3a', fontSize: 11, fontFamily: 'Courier New', marginTop: 10, marginBottom: 4},
-  modalActions:   {flexDirection: 'row', justifyContent: 'flex-end', gap: 20, marginTop: 20},
-  modalBtn:       {paddingVertical: 6, paddingHorizontal: 4},
-  modalBtnText:   {color: '#666', fontSize: 12, fontFamily: 'Courier New', letterSpacing: 2},
-});
+function makeStyles(t) {
+  return StyleSheet.create({
+    container:      {flex: 1, backgroundColor: t.bg},
+    header:         {flexDirection: 'row', alignItems: 'center', paddingHorizontal: 20, paddingTop: 56, paddingBottom: 14, borderBottomWidth: 1, borderBottomColor: t.border, gap: 10},
+    upBtn:          {paddingRight: 4},
+    upBtnText:      {color: t.textDimmer, fontSize: 20, fontFamily: 'Courier New'},
+    titleContainer: {flex: 1},
+    title:          {color: t.textMuted, fontSize: 13, fontFamily: 'Courier New', letterSpacing: 2},
+    autosavedLabel: {color: t.textTiny, fontSize: 11, fontFamily: 'Courier New', letterSpacing: 1},
+    saveBtn:        {paddingVertical: 4, paddingHorizontal: 2},
+    saveBtnText:    {color: t.textDimmer, fontSize: 12, fontFamily: 'Courier New', letterSpacing: 1},
+    menuBtn:        {paddingVertical: 4, paddingHorizontal: 4},
+    menuBtnText:    {color: t.textDimmer, fontSize: 16, letterSpacing: 2, fontFamily: 'Courier New'},
+    scrollView:     {flex: 1},
+    scrollContent:  {flexGrow: 1},
+    editor:         {
+      flex: 1,
+      color: t.textEditor,
+      fontSize: 15,
+      lineHeight: 24,
+      paddingHorizontal: 24,
+      paddingTop: 24,
+      paddingBottom: 8,
+      fontFamily: 'Courier New',
+      letterSpacing: 0.3,
+      minHeight: '100%',
+    },
+    footer:         {flexDirection: 'row', justifyContent: 'space-between', paddingHorizontal: 24, paddingVertical: 10, borderTopWidth: 1, borderTopColor: t.border},
+    footerText:     {color: t.textTiny, fontSize: 11, fontFamily: 'Courier New', letterSpacing: 1},
+    menuOverlay:    {flex: 1, backgroundColor: 'transparent'},
+    menuBox:        {position: 'absolute', top: 100, right: 16, backgroundColor: t.surfaceAlt, borderWidth: 1, borderColor: t.borderStrong, minWidth: 140, elevation: 8},
+    menuItem:       {paddingVertical: 14, paddingHorizontal: 20},
+    menuItemText:   {color: t.textSub, fontSize: 13, fontFamily: 'Courier New', letterSpacing: 1},
+    menuItemDanger: {color: t.errorMuted},
+    menuDivider:    {height: 1, backgroundColor: t.borderMid},
+    modalOverlay:   {flex: 1, backgroundColor: t.overlay, justifyContent: 'center', paddingHorizontal: 32},
+    modalBox:       {backgroundColor: t.surface, padding: 28, borderWidth: 1, borderColor: t.borderMid},
+    modalTitle:     {color: t.textDimmer, fontSize: 11, letterSpacing: 3, fontFamily: 'Courier New', marginBottom: 16},
+    fieldLabel:     {color: t.textFaint, fontSize: 11, letterSpacing: 1, fontFamily: 'Courier New', marginBottom: 6, marginTop: 12},
+    dirRow:         {flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: 12, marginBottom: 6},
+    resetBtnText:   {color: t.textFaint, fontSize: 11, fontFamily: 'Courier New', letterSpacing: 1},
+    dirHint:        {color: t.textTiny, fontSize: 10, fontFamily: 'Courier New', lineHeight: 16, marginTop: 6},
+    modalInput:     {borderBottomWidth: 1, borderBottomColor: t.borderStrong, color: t.text, fontSize: 15, paddingVertical: 8, fontFamily: 'Courier New', marginBottom: 4},
+    modalError:     {color: t.errorMuted, fontSize: 11, fontFamily: 'Courier New', marginTop: 10, marginBottom: 4},
+    modalActions:   {flexDirection: 'row', justifyContent: 'flex-end', gap: 20, marginTop: 20},
+    modalBtn:       {paddingVertical: 6, paddingHorizontal: 4},
+    modalBtnText:   {color: t.textDim, fontSize: 12, fontFamily: 'Courier New', letterSpacing: 2},
+  });
+}

@@ -4,31 +4,31 @@
  * First launch PIN setup.
  * Minimum PIN length: 5 characters.
  * 12345 is a valid PIN that bypasses the lock screen silently.
+ *
+ * After setup, navigates to WalkthroughScreen on first install
+ * (walkthrough_seen not set), otherwise straight to FileBrowser.
  */
 
-import React, {useState, useRef} from 'react';
+import React, {useState, useRef, useMemo} from 'react';
 import {
-  View,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  StyleSheet,
-  ScrollView,
-  KeyboardAvoidingView,
-  Platform,
+  View, Text, TextInput, TouchableOpacity, StyleSheet,
+  ScrollView, KeyboardAvoidingView, Platform,
 } from 'react-native';
 import CryptoManager from '../crypto/CryptoManager';
 import StorageManager from '../storage/StorageManager';
+import {useTheme} from '../theme/ThemeContext';
 
 const MIN_PIN_LENGTH = CryptoManager.MIN_PIN_LENGTH;
 
 export default function OnboardingScreen({navigation}) {
-  const [step, setStep]           = useState('welcome');
-  const [pin, setPin]             = useState('');
-  const [confirmPin, setConfirmPin] = useState('');
-  const [error, setError]         = useState('');
+  const [step, setStep]               = useState('welcome');
+  const [pin, setPin]                 = useState('');
+  const [confirmPin, setConfirmPin]   = useState('');
+  const [error, setError]             = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
   const confirmRef = useRef(null);
+  const t = useTheme();
+  const styles = useMemo(() => makeStyles(t), [t]);
 
   async function handleFinish() {
     if (isProcessing) return;
@@ -46,7 +46,12 @@ export default function OnboardingScreen({navigation}) {
     try {
       await CryptoManager.initialize(pin);
       await StorageManager.createDefaultNote();
-      navigation.replace('FileBrowser', {path: ''});
+      const seen = await CryptoManager.getWalkthroughSeen();
+      if (seen) {
+        navigation.replace('FileBrowser', {path: ''});
+      } else {
+        navigation.replace('Walkthrough');
+      }
     } catch (e) {
       setError(e.message || String(e));
     } finally {
@@ -102,7 +107,7 @@ export default function OnboardingScreen({navigation}) {
             value={pin}
             onChangeText={text => {setPin(text); setError('');}}
             placeholder="PIN (numbers, letters, symbols)"
-            placeholderTextColor="#444"
+            placeholderTextColor={t.textFaint}
             secureTextEntry
             autoCapitalize="none"
             autoCorrect={false}
@@ -116,7 +121,7 @@ export default function OnboardingScreen({navigation}) {
             value={confirmPin}
             onChangeText={text => {setConfirmPin(text); setError('');}}
             placeholder="repeat PIN"
-            placeholderTextColor="#444"
+            placeholderTextColor={t.textFaint}
             secureTextEntry
             autoCapitalize="none"
             autoCorrect={false}
@@ -143,20 +148,22 @@ export default function OnboardingScreen({navigation}) {
   );
 }
 
-const styles = StyleSheet.create({
-  container:      {flex: 1, backgroundColor: '#0d0d0d'},
-  inner:          {flexGrow: 1, justifyContent: 'center', paddingHorizontal: 36, paddingVertical: 60},
-  logo:           {fontSize: 32, fontWeight: '200', color: '#e8e8e8', letterSpacing: 6, marginBottom: 6, fontFamily: 'Courier New'},
-  tagline:        {fontSize: 11, color: '#444', letterSpacing: 3, marginBottom: 48, fontFamily: 'Courier New'},
-  section:        {marginBottom: 40},
-  body:           {color: '#999', fontSize: 14, lineHeight: 22, marginBottom: 16, fontFamily: 'Courier New'},
-  warning:        {color: '#7a3a3a', fontSize: 13, lineHeight: 20, marginTop: 8, fontFamily: 'Courier New', borderLeftWidth: 2, borderLeftColor: '#7a3a3a', paddingLeft: 12},
-  label:          {color: '#555', fontSize: 11, letterSpacing: 2, marginBottom: 8, marginTop: 20, fontFamily: 'Courier New'},
-  input:          {borderBottomWidth: 1, borderBottomColor: '#2a2a2a', color: '#e8e8e8', fontSize: 16, paddingVertical: 10, fontFamily: 'Courier New', letterSpacing: 2, marginBottom: 4},
-  hint:           {color: '#444', fontSize: 11, lineHeight: 17, marginTop: 12, fontFamily: 'Courier New'},
-  mono:           {color: '#666', fontFamily: 'Courier New'},
-  error:          {color: '#c0392b', fontSize: 13, marginTop: 12, fontFamily: 'Courier New'},
-  button:         {paddingVertical: 14, paddingHorizontal: 32, borderWidth: 1, borderColor: '#2a2a2a', alignSelf: 'flex-start'},
-  buttonDisabled: {opacity: 0.4},
-  buttonText:     {color: '#e8e8e8', fontSize: 13, letterSpacing: 2, fontFamily: 'Courier New'},
-});
+function makeStyles(t) {
+  return StyleSheet.create({
+    container:      {flex: 1, backgroundColor: t.bg},
+    inner:          {flexGrow: 1, justifyContent: 'center', paddingHorizontal: 36, paddingVertical: 60},
+    logo:           {fontSize: 32, fontWeight: '200', color: t.text, letterSpacing: 6, marginBottom: 6, fontFamily: 'Courier New'},
+    tagline:        {fontSize: 11, color: t.textFaint, letterSpacing: 3, marginBottom: 48, fontFamily: 'Courier New'},
+    section:        {marginBottom: 40},
+    body:           {color: t.textBody, fontSize: 14, lineHeight: 22, marginBottom: 16, fontFamily: 'Courier New'},
+    warning:        {color: t.errorMuted, fontSize: 13, lineHeight: 20, marginTop: 8, fontFamily: 'Courier New', borderLeftWidth: 2, borderLeftColor: t.errorMuted, paddingLeft: 12},
+    label:          {color: t.textDimmer, fontSize: 11, letterSpacing: 2, marginBottom: 8, marginTop: 20, fontFamily: 'Courier New'},
+    input:          {borderBottomWidth: 1, borderBottomColor: t.borderStrong, color: t.text, fontSize: 16, paddingVertical: 10, fontFamily: 'Courier New', letterSpacing: 2, marginBottom: 4},
+    hint:           {color: t.textFaint, fontSize: 11, lineHeight: 17, marginTop: 12, fontFamily: 'Courier New'},
+    mono:           {color: t.textDim, fontFamily: 'Courier New'},
+    error:          {color: t.error, fontSize: 13, marginTop: 12, fontFamily: 'Courier New'},
+    button:         {paddingVertical: 14, paddingHorizontal: 32, borderWidth: 1, borderColor: t.borderStrong, alignSelf: 'flex-start'},
+    buttonDisabled: {opacity: 0.4},
+    buttonText:     {color: t.text, fontSize: 13, letterSpacing: 2, fontFamily: 'Courier New'},
+  });
+}
