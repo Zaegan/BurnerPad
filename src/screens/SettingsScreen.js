@@ -7,13 +7,17 @@
  * 3. Backup — encrypted archive written to Downloads folder
  * 4. Restore — encrypted archive picked via SAF with suppressLock
  * 5. Duress PIN (min 5 chars)
+ * 6. Rate This App (Play Store link)
+ *
+ * Privacy Policy link is shown in the gate (locked) view — accessible
+ * without entering a PIN for legal/trust reasons.
  */
 
 import React, {useState, useRef} from 'react';
 import {
   View, Text, TextInput, TouchableOpacity, ScrollView,
   StyleSheet, Alert, KeyboardAvoidingView, Platform,
-  Switch, ActivityIndicator,
+  Switch, ActivityIndicator, Linking,
 } from 'react-native';
 import {pick, keepLocalCopy, types, isCancel} from '@react-native-documents/picker';
 import RNFS from 'react-native-fs';
@@ -265,6 +269,11 @@ export default function SettingsScreen({navigation}) {
           <TouchableOpacity style={styles.button} onPress={handleGateSubmit}>
             <Text style={styles.buttonText}>continue →</Text>
           </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.privacyLink}
+            onPress={() => Linking.openURL('https://zaegan.github.io/BurnerPad/privacy.html')}>
+            <Text style={styles.privacyLinkText}>privacy policy</Text>
+          </TouchableOpacity>
         </View>
       </KeyboardAvoidingView>
     );
@@ -470,6 +479,29 @@ export default function SettingsScreen({navigation}) {
             The duress PIN must differ from your real PIN.
           </Text>
         </View>
+
+        {/* Rate This App */}
+        <View style={styles.card}>
+          <Text style={styles.cardTitle}>Enjoying BurnerPad?</Text>
+          <Text style={styles.cardBody}>
+            A review on the Play Store helps others find a private, no-nonsense notepad.
+          </Text>
+          <TouchableOpacity
+            style={styles.button}
+            onPress={() =>
+              Linking.openURL('market://details?id=com.github.zaegan.burnerpad').catch(() =>
+                Linking.openURL('https://play.google.com/store/apps/details?id=com.github.zaegan.burnerpad'),
+              )
+            }>
+            <Text style={styles.buttonText}>rate this app</Text>
+          </TouchableOpacity>
+        </View>
+
+        <TouchableOpacity
+          style={styles.privacyLink}
+          onPress={() => Linking.openURL('https://zaegan.github.io/BurnerPad/privacy.html')}>
+          <Text style={styles.privacyLinkText}>privacy policy</Text>
+        </TouchableOpacity>
       </ScrollView>
     </KeyboardAvoidingView>
   );
@@ -504,4 +536,6 @@ const styles = StyleSheet.create({
   buttonDisabled:{opacity: 0.4},
   buttonText:    {color: '#777', fontFamily: 'Courier New', fontSize: 12, letterSpacing: 2},
   footnote:      {color: '#2a2a2a', fontFamily: 'Courier New', fontSize: 11, lineHeight: 18, marginTop: 20},
+  privacyLink:   {alignSelf: 'center', marginTop: 32, paddingVertical: 8},
+  privacyLinkText:{color: '#2a2a2a', fontFamily: 'Courier New', fontSize: 11, letterSpacing: 2},
 });

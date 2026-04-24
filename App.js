@@ -15,7 +15,7 @@
 
 import React, {useEffect, useState, useRef} from 'react';
 import {AppState, View, ActivityIndicator, StyleSheet} from 'react-native';
-import {NavigationContainer} from '@react-navigation/native';
+import {NavigationContainer, StackActions} from '@react-navigation/native';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import CryptoManager from './src/crypto/CryptoManager';
 import MigrationManager from './src/crypto/MigrationManager';
@@ -49,10 +49,12 @@ let _navigationRef = null;
 export function requirePin() {
   CryptoManager.clearSessionKey();
   if (_navigationRef) {
-    _navigationRef.reset({
-      index: 0,
-      routes: [{name: 'Pin'}],
-    });
+    // Push Pin on top of the current stack so the underlying screen is
+    // preserved and visible behind the lock screen. Guard against double-push
+    // in case requirePin() is called while Pin is already the top screen.
+    if (_navigationRef.getCurrentRoute()?.name !== 'Pin') {
+      _navigationRef.dispatch(StackActions.push('Pin'));
+    }
   }
 }
 
@@ -83,10 +85,9 @@ export default function App() {
         const doLock = () => {
           CryptoManager.clearSessionKey();
           if (_navigationRef) {
-            _navigationRef.reset({
-              index: 0,
-              routes: [{name: 'Pin'}],
-            });
+            if (_navigationRef.getCurrentRoute()?.name !== 'Pin') {
+              _navigationRef.dispatch(StackActions.push('Pin'));
+            }
           }
         };
         if (_beforeLockFlush) {

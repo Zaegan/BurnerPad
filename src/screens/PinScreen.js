@@ -7,6 +7,12 @@
  * - Wrong attempts counted; after 5, reinstall hint shown
  * - Unlimited attempts always allowed
  * - On duress PIN: wipes everything, reinitializes with duress PIN as new PIN
+ *
+ * NAVIGATION MODEL:
+ * Pin is pushed on top of the existing stack when the app locks, so the
+ * previous screen is preserved underneath. On successful unlock, goBack()
+ * returns to that screen. On a cold start (nothing below), replace() is
+ * used instead. Duress always hard-resets to a fresh FileBrowser.
  */
 
 import React, {useState, useRef, useEffect} from 'react';
@@ -34,7 +40,11 @@ export default function PinScreen({navigation}) {
     (async () => {
       const result = await CryptoManager.verifyPin(NO_PIN);
       if (result === 'correct') {
-        navigation.replace('FileBrowser', {path: ''});
+        if (navigation.canGoBack()) {
+          navigation.goBack();
+        } else {
+          navigation.replace('FileBrowser', {path: ''});
+        }
         return;
       }
       setIsChecking(false);
@@ -60,14 +70,19 @@ export default function PinScreen({navigation}) {
       const result = await CryptoManager.verifyPin(pin);
       if (result === 'correct') {
         setPin('');
-        navigation.replace('FileBrowser', {path: ''});
+        if (navigation.canGoBack()) {
+          navigation.goBack();
+        } else {
+          navigation.replace('FileBrowser', {path: ''});
+        }
       } else if (result === 'duress') {
         await CryptoManager.wipeKeys();
         await StorageManager.wipeAllNotes();
         await CryptoManager.initialize(pin);
         await StorageManager.createDefaultNote();
         setPin('');
-        navigation.replace('FileBrowser', {path: ''});
+        // Duress wipe: always reset to a clean FileBrowser regardless of prior stack
+        navigation.reset({index: 0, routes: [{name: 'FileBrowser', params: {path: ''}}]});
       } else {
         const newCount = wrongAttempts + 1;
         setWrongAttempts(newCount);
