@@ -21,6 +21,7 @@ import StorageManager from '../storage/StorageManager';
 import {setSuppressLock} from '../../App';
 import {useTheme} from '../theme/ThemeContext';
 import * as TutorialManager from '../tutorial/TutorialManager';
+import EncryptedStorage from 'react-native-encrypted-storage';
 
 export default function FileBrowserScreen({navigation, route}) {
   const currentPath = route.params?.path ?? '';
@@ -52,6 +53,9 @@ export default function FileBrowserScreen({navigation, route}) {
 
   useFocusEffect(useCallback(() => {
     loadItems();
+    EncryptedStorage.setItem('last_location', JSON.stringify(
+      {screen: 'FileBrowser', params: {path: currentPath}},
+    )).catch(() => {});
     if (!currentPath && !tutorialChecked.current) {
       tutorialChecked.current = true;
       TutorialManager.shouldShow(TutorialManager.TUTORIALS.SETTINGS_INTRO).then(show => {
@@ -85,6 +89,9 @@ export default function FileBrowserScreen({navigation, route}) {
     if (item.isDirectory) {
       navigation.push('FileBrowser', {path: item.path});
     } else {
+      EncryptedStorage.setItem('last_location', JSON.stringify(
+        {screen: 'Editor', params: {notePath: item.path, noteName: item.name}},
+      )).catch(() => {});
       navigation.navigate('Editor', {notePath: item.path, noteName: item.name});
     }
   }
@@ -276,6 +283,9 @@ export default function FileBrowserScreen({navigation, route}) {
         await StorageManager.writeNote(relativePath, '');
         setCreateVisible(false);
         setCreateName('');
+        EncryptedStorage.setItem('last_location', JSON.stringify(
+          {screen: 'Editor', params: {notePath: relativePath, noteName: name}},
+        )).catch(() => {});
         navigation.navigate('Editor', {notePath: relativePath, noteName: name});
       }
     } catch (e) { setCreateError(e.message || 'Could not create.'); }

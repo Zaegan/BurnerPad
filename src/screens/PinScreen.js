@@ -23,6 +23,7 @@ import {
 import CryptoManager from '../crypto/CryptoManager';
 import StorageManager from '../storage/StorageManager';
 import {useTheme} from '../theme/ThemeContext';
+import EncryptedStorage from 'react-native-encrypted-storage';
 
 const WRONG_ATTEMPTS_BEFORE_HINT = 5;
 const NO_PIN = '12345';
@@ -39,15 +40,45 @@ export default function PinScreen({navigation}) {
   const t = useTheme();
   const styles = useMemo(() => makeStyles(t), [t]);
 
+  async function navigateAfterUnlock() {
+    if (navigation.canGoBack()) {
+      navigation.goBack();
+      return;
+    }
+    // Cold start (process was killed) — restore last location if available.
+    try {
+      const raw = await EncryptedStorage.getItem('last_location');
+      if (raw) {
+        const loc = JSON.parse(raw);
+        if (loc.screen === 'Editor' && loc.params?.notePath && loc.params?.noteName) {
+          const parts = loc.params.notePath.split('/');
+          const dir = parts.length > 1 ? parts.slice(0, -1).join('/') : '';
+          navigation.reset({
+            index: 1,
+            routes: [
+              {name: 'FileBrowser', params: {path: dir}},
+              {name: 'Editor',      params: loc.params},
+            ],
+          });
+          return;
+        }
+        if (loc.screen === 'FileBrowser' && loc.params?.path !== undefined) {
+          navigation.reset({
+            index: 0,
+            routes: [{name: 'FileBrowser', params: {path: loc.params.path}}],
+          });
+          return;
+        }
+      }
+    } catch {}
+    navigation.replace('FileBrowser', {path: ''});
+  }
+
   useEffect(() => {
     (async () => {
       const result = await CryptoManager.verifyPin(NO_PIN);
       if (result === 'correct') {
-        if (navigation.canGoBack()) {
-          navigation.goBack();
-        } else {
-          navigation.replace('FileBrowser', {path: ''});
-        }
+        await navigateAfterUnlock();
         return;
       }
       setIsChecking(false);
@@ -73,11 +104,7 @@ export default function PinScreen({navigation}) {
       const result = await CryptoManager.verifyPin(pin);
       if (result === 'correct') {
         setPin('');
-        if (navigation.canGoBack()) {
-          navigation.goBack();
-        } else {
-          navigation.replace('FileBrowser', {path: ''});
-        }
+        await navigateAfterUnlock();
       } else if (result === 'duress') {
         await CryptoManager.wipeKeys();
         await StorageManager.wipeAllNotes();
