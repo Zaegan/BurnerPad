@@ -320,7 +320,7 @@ export default function FileBrowserScreen({navigation, route}) {
             {label: '+ note',   onPress: () => { setCreateMode('note');      setCreateName(''); setCreateError(''); setCreateVisible(true); }},
             {label: '+ folder', onPress: () => { setCreateMode('directory'); setCreateName(''); setCreateError(''); setCreateVisible(true); }},
             {label: '+ import', onPress: handleImport},
-            {label: '⚙',        onPress: () => navigation.navigate('Settings'), highlight: tutorialVisible},
+            {label: '⚙',        onPress: () => { if (tutorialVisible) dismissTutorial(); navigation.navigate('Settings'); }, highlight: tutorialVisible},
           ].map(btn => (
             <TouchableOpacity key={btn.label} style={[styles.headerBtn, btn.highlight && styles.headerBtnHighlight]} onPress={btn.onPress}>
               <Text style={[styles.headerBtnText, btn.highlight && styles.headerBtnTextHighlight]}>{btn.label}</Text>
@@ -399,9 +399,9 @@ export default function FileBrowserScreen({navigation, route}) {
         </View>
       </Modal>
 
-      {/* Settings tutorial overlay */}
-      <Modal visible={tutorialVisible} transparent animationType="fade" onRequestClose={dismissTutorial}>
-        <View style={styles.tutorialOverlay}>
+      {/* Settings tutorial overlay — absolute view so ⚙ button remains tappable behind it */}
+      {tutorialVisible && (
+        <View style={styles.tutorialOverlay} pointerEvents="box-none">
           <View style={styles.tutorialBox}>
             <Text style={styles.tutorialTitle}>settings  ⚙</Text>
             <Text style={styles.tutorialBody}>
@@ -425,7 +425,7 @@ export default function FileBrowserScreen({navigation, route}) {
             </View>
           </View>
         </View>
-      </Modal>
+      )}
 
       {/* Import modal */}
       <Modal visible={importVisible} transparent animationType="fade" onRequestClose={() => setImportVisible(false)}>
@@ -482,7 +482,7 @@ function makeStyles(t) {
     modalActions:  {flexDirection: 'row', justifyContent: 'flex-end', gap: 20, marginTop: 16},
     modalBtn:         {paddingVertical: 6, paddingHorizontal: 4},
     modalBtnText:     {color: t.textDim, fontSize: 12, fontFamily: 'Courier New', letterSpacing: 2},
-    tutorialOverlay:  {flex: 1, justifyContent: 'center', paddingHorizontal: 24},
+    tutorialOverlay:  {position: 'absolute', left: 0, right: 0, top: 0, bottom: 0, justifyContent: 'center', paddingHorizontal: 24},
     tutorialBox:      {backgroundColor: t.surface, borderWidth: 1, borderColor: t.borderMid, paddingHorizontal: 32, paddingTop: 28, paddingBottom: 32},
     tutorialTitle:    {color: t.textDimmer, fontSize: 13, letterSpacing: 3, fontFamily: 'Courier New', marginBottom: 16},
     tutorialBody:     {color: t.textBody, fontSize: 16, lineHeight: 26, fontFamily: 'Courier New', marginBottom: 24},
