@@ -5,6 +5,7 @@
  * Minimum PIN length: 5 characters.
  * 12345 is a valid PIN that bypasses the lock screen silently.
  *
+ * Steps: welcome → pin_behavior → setpin
  * After setup, navigates to WalkthroughScreen on first install
  * (walkthrough_seen not set), otherwise straight to FileBrowser.
  */
@@ -16,6 +17,7 @@ import {
 } from 'react-native';
 import CryptoManager from '../crypto/CryptoManager';
 import StorageManager from '../storage/StorageManager';
+import * as TutorialManager from '../tutorial/TutorialManager';
 import {useTheme} from '../theme/ThemeContext';
 
 const MIN_PIN_LENGTH = CryptoManager.MIN_PIN_LENGTH;
@@ -83,9 +85,61 @@ export default function OnboardingScreen({navigation}) {
               reinstall is the only option — and it destroys everything.
             </Text>
           </View>
-          <TouchableOpacity style={styles.button} onPress={() => setStep('setpin')}>
-            <Text style={styles.buttonText}>Set my PIN →</Text>
-          </TouchableOpacity>
+          <View style={styles.tutorialNav}>
+            <TouchableOpacity style={styles.button} onPress={() => setStep('pin_behavior')}>
+              <Text style={styles.buttonText}>next →</Text>
+            </TouchableOpacity>
+            <View style={styles.tutorialLinks}>
+              <TouchableOpacity onPress={() => setStep('setpin')}>
+                <Text style={styles.tutorialLink}>skip tutorials</Text>
+              </TouchableOpacity>
+              <Text style={styles.tutorialLinkSep}>·</Text>
+              <TouchableOpacity onPress={async () => { await TutorialManager.declineAll(); setStep('setpin'); }}>
+                <Text style={styles.tutorialLink}>decline all tutorials</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </View>
+    );
+  }
+
+  if (step === 'pin_behavior') {
+    return (
+      <View style={styles.container}>
+        <View style={styles.inner}>
+          <Text style={styles.logo}>BurnerPad</Text>
+          <Text style={styles.tagline}>about your PIN</Text>
+          <View style={styles.section}>
+            <Text style={styles.body}>
+              If you set your PIN to{' '}
+              <Text style={styles.mono}>12345</Text>, BurnerPad will open
+              automatically without asking for a PIN each time the app
+              launches or returns from the background.
+            </Text>
+            <Text style={styles.body}>
+              Any other PIN will be required every time the app opens or
+              comes back to the foreground.
+            </Text>
+            <Text style={styles.body}>
+              Either way, your notes are fully encrypted. The only difference
+              is how often you're asked to type your PIN.
+            </Text>
+          </View>
+          <View style={styles.tutorialNav}>
+            <TouchableOpacity style={styles.button} onPress={() => setStep('setpin')}>
+              <Text style={styles.buttonText}>set my PIN →</Text>
+            </TouchableOpacity>
+            <View style={styles.tutorialLinks}>
+              <TouchableOpacity onPress={() => setStep('setpin')}>
+                <Text style={styles.tutorialLink}>skip tutorials</Text>
+              </TouchableOpacity>
+              <Text style={styles.tutorialLinkSep}>·</Text>
+              <TouchableOpacity onPress={async () => { await TutorialManager.declineAll(); setStep('setpin'); }}>
+                <Text style={styles.tutorialLink}>decline all tutorials</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
         </View>
       </View>
     );
@@ -165,5 +219,9 @@ function makeStyles(t) {
     button:         {paddingVertical: 14, paddingHorizontal: 32, borderWidth: 1, borderColor: t.borderStrong, alignSelf: 'flex-start'},
     buttonDisabled: {opacity: 0.4},
     buttonText:     {color: t.text, fontSize: 13, letterSpacing: 2, fontFamily: 'Courier New'},
+    tutorialNav:    {gap: 0},
+    tutorialLinks:  {flexDirection: 'row', alignItems: 'center', marginTop: 20, gap: 8},
+    tutorialLink:   {color: t.textFaint, fontFamily: 'Courier New', fontSize: 11, letterSpacing: 1},
+    tutorialLinkSep:{color: t.textMicro, fontFamily: 'Courier New', fontSize: 11},
   });
 }

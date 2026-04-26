@@ -9,7 +9,7 @@
  * Import: uses SAF pick + keepLocalCopy with suppressLock.
  */
 
-import React, {useState, useCallback, useMemo} from 'react';
+import React, {useState, useCallback, useMemo, useRef} from 'react';
 import {
   View, Text, FlatList, TouchableOpacity, TouchableHighlight,
   StyleSheet, Alert, TextInput, Modal,
@@ -20,6 +20,7 @@ import RNFS from 'react-native-fs';
 import StorageManager from '../storage/StorageManager';
 import {setSuppressLock} from '../../App';
 import {useTheme} from '../theme/ThemeContext';
+import * as TutorialManager from '../tutorial/TutorialManager';
 
 export default function FileBrowserScreen({navigation, route}) {
   const currentPath = route.params?.path ?? '';
@@ -43,10 +44,21 @@ export default function FileBrowserScreen({navigation, route}) {
   const [importError, setImportError]     = useState('');
   const [isImporting, setIsImporting]     = useState(false);
 
+  const [tutorialVisible, setTutorialVisible] = useState(false);
+  const tutorialChecked = useRef(false);
+
   const t = useTheme();
   const styles = useMemo(() => makeStyles(t), [t]);
 
-  useFocusEffect(useCallback(() => { loadItems(); }, [currentPath]));
+  useFocusEffect(useCallback(() => {
+    loadItems();
+    if (!currentPath && !tutorialChecked.current) {
+      tutorialChecked.current = true;
+      TutorialManager.shouldShow(TutorialManager.TUTORIALS.SETTINGS_INTRO).then(show => {
+        if (show) setTutorialVisible(true);
+      });
+    }
+  }, [currentPath]));
 
   async function loadItems() {
     try {
@@ -270,6 +282,16 @@ export default function FileBrowserScreen({navigation, route}) {
     finally { setIsCreating(false); }
   }
 
+  async function dismissTutorial() {
+    await TutorialManager.markDone(TutorialManager.TUTORIALS.SETTINGS_INTRO);
+    setTutorialVisible(false);
+  }
+
+  async function declineAllTutorials() {
+    await TutorialManager.declineAll();
+    setTutorialVisible(false);
+  }
+
   const title = currentPath ? currentPath.split('/').pop() : 'BurnerPad';
 
   return (
@@ -367,6 +389,34 @@ export default function FileBrowserScreen({navigation, route}) {
         </View>
       </Modal>
 
+      {/* Settings tutorial overlay */}
+      <Modal visible={tutorialVisible} transparent animationType="fade" onRequestClose={dismissTutorial}>
+        <View style={styles.tutorialOverlay}>
+          <View style={styles.tutorialBox}>
+            <Text style={styles.tutorialTitle}>settings  ⚙</Text>
+            <Text style={styles.tutorialBody}>
+              Tap <Text style={styles.tutorialMono}>⚙</Text> in the top-right corner to access settings — theme,
+              duress PIN, and more. Your settings PIN is separate from your
+              notes PIN.
+            </Text>
+            <View style={styles.tutorialActions}>
+              <TouchableOpacity onPress={dismissTutorial} style={styles.tutorialBtn}>
+                <Text style={styles.tutorialBtnPrimary}>got it →</Text>
+              </TouchableOpacity>
+              <View style={styles.tutorialLinks}>
+                <TouchableOpacity onPress={dismissTutorial}>
+                  <Text style={styles.tutorialLink}>skip</Text>
+                </TouchableOpacity>
+                <Text style={styles.tutorialLinkSep}>·</Text>
+                <TouchableOpacity onPress={declineAllTutorials}>
+                  <Text style={styles.tutorialLink}>decline all tutorials</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          </View>
+        </View>
+      </Modal>
+
       {/* Import modal */}
       <Modal visible={importVisible} transparent animationType="fade" onRequestClose={() => setImportVisible(false)}>
         <View style={styles.modalOverlay}>
@@ -418,7 +468,18 @@ function makeStyles(t) {
     modalInput:    {borderBottomWidth: 1, borderBottomColor: t.borderStrong, color: t.text, fontSize: 15, paddingVertical: 8, fontFamily: 'Courier New', marginBottom: 8},
     modalError:    {color: t.errorMuted, fontSize: 11, fontFamily: 'Courier New', marginBottom: 8},
     modalActions:  {flexDirection: 'row', justifyContent: 'flex-end', gap: 20, marginTop: 16},
-    modalBtn:      {paddingVertical: 6, paddingHorizontal: 4},
-    modalBtnText:  {color: t.textDim, fontSize: 12, fontFamily: 'Courier New', letterSpacing: 2},
+    modalBtn:         {paddingVertical: 6, paddingHorizontal: 4},
+    modalBtnText:     {color: t.textDim, fontSize: 12, fontFamily: 'Courier New', letterSpacing: 2},
+    tutorialOverlay:  {flex: 1, justifyContent: 'flex-end'},
+    tutorialBox:      {backgroundColor: t.surface, borderTopWidth: 1, borderTopColor: t.borderMid, paddingHorizontal: 32, paddingTop: 28, paddingBottom: 40},
+    tutorialTitle:    {color: t.textDimmer, fontSize: 11, letterSpacing: 3, fontFamily: 'Courier New', marginBottom: 16},
+    tutorialBody:     {color: t.textBody, fontSize: 13, lineHeight: 22, fontFamily: 'Courier New', marginBottom: 24},
+    tutorialMono:     {color: t.textDim, fontFamily: 'Courier New'},
+    tutorialActions:  {gap: 0},
+    tutorialBtn:      {alignSelf: 'flex-start'},
+    tutorialBtnPrimary:{color: t.text, fontSize: 13, fontFamily: 'Courier New', letterSpacing: 2},
+    tutorialLinks:    {flexDirection: 'row', alignItems: 'center', marginTop: 16, gap: 8},
+    tutorialLink:     {color: t.textFaint, fontFamily: 'Courier New', fontSize: 11, letterSpacing: 1},
+    tutorialLinkSep:  {color: t.textMicro, fontFamily: 'Courier New', fontSize: 11},
   });
 }
