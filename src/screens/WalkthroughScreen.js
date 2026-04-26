@@ -8,6 +8,7 @@
 import React, {useState, useMemo} from 'react';
 import {View, Text, TouchableOpacity, StyleSheet} from 'react-native';
 import CryptoManager from '../crypto/CryptoManager';
+import * as TutorialManager from '../tutorial/TutorialManager';
 import {useTheme} from '../theme/ThemeContext';
 
 const SLIDES = [
@@ -66,9 +67,14 @@ export default function WalkthroughScreen({navigation}) {
         </View>
 
         <View style={styles.actions}>
-          <TouchableOpacity onPress={finish} style={styles.skipBtn}>
-            <Text style={styles.skipText}>skip</Text>
-          </TouchableOpacity>
+          <View style={styles.actionsLeft}>
+            <TouchableOpacity onPress={finish} style={styles.skipBtn}>
+              <Text style={styles.skipText}>skip</Text>
+            </TouchableOpacity>
+            <TouchableOpacity onPress={async () => { await TutorialManager.declineAll(); finish(); }} style={styles.declineBtn}>
+              <Text style={styles.declineText}>decline all tutorials</Text>
+            </TouchableOpacity>
+          </View>
           <TouchableOpacity onPress={next} style={styles.nextBtn}>
             <Text style={styles.nextText}>{isLast ? 'start →' : 'next →'}</Text>
           </TouchableOpacity>
@@ -86,12 +92,15 @@ function makeStyles(t) {
     dot:       {width: 4, height: 4, borderRadius: 2, backgroundColor: t.textMicro},
     dotActive: {backgroundColor: t.textDimmer},
     content:   {flex: 1, justifyContent: 'center'},
-    title:     {fontSize: 13, fontWeight: '200', color: t.textDim, letterSpacing: 4, fontFamily: 'Courier New', marginBottom: 28},
-    body:      {fontSize: 14, color: t.textBody, lineHeight: 24, fontFamily: 'Courier New'},
-    actions:   {flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center'},
-    skipBtn:   {paddingVertical: 8, paddingRight: 8},
-    skipText:  {color: t.textGhost, fontSize: 12, fontFamily: 'Courier New', letterSpacing: 2},
-    nextBtn:   {paddingVertical: 8, paddingLeft: 8},
-    nextText:  {color: t.text, fontSize: 13, fontFamily: 'Courier New', letterSpacing: 2},
+    actions:     {flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-end'},
+    actionsLeft: {gap: 12},
+    skipBtn:     {paddingVertical: 4},
+    skipText:    {color: t.textGhost, fontSize: 13, fontFamily: 'Courier New', letterSpacing: 2},
+    declineBtn:  {paddingVertical: 4},
+    declineText: {color: t.textMicro, fontSize: 11, fontFamily: 'Courier New', letterSpacing: 1},
+    nextBtn:     {paddingVertical: 8, paddingLeft: 8},
+    nextText:    {color: t.text, fontSize: 14, fontFamily: 'Courier New', letterSpacing: 2},
+    title:       {fontSize: 16, fontWeight: '200', color: t.textDim, letterSpacing: 4, fontFamily: 'Courier New', marginBottom: 28},
+    body:        {fontSize: 17, color: t.textBody, lineHeight: 28, fontFamily: 'Courier New'},
   });
 }

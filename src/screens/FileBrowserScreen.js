@@ -310,10 +310,10 @@ export default function FileBrowserScreen({navigation, route}) {
             {label: '+ note',   onPress: () => { setCreateMode('note');      setCreateName(''); setCreateError(''); setCreateVisible(true); }},
             {label: '+ folder', onPress: () => { setCreateMode('directory'); setCreateName(''); setCreateError(''); setCreateVisible(true); }},
             {label: '+ import', onPress: handleImport},
-            {label: '⚙',        onPress: () => navigation.navigate('Settings')},
+            {label: '⚙',        onPress: () => navigation.navigate('Settings'), highlight: tutorialVisible},
           ].map(btn => (
-            <TouchableOpacity key={btn.label} style={styles.headerBtn} onPress={btn.onPress}>
-              <Text style={styles.headerBtnText}>{btn.label}</Text>
+            <TouchableOpacity key={btn.label} style={[styles.headerBtn, btn.highlight && styles.headerBtnHighlight]} onPress={btn.onPress}>
+              <Text style={[styles.headerBtnText, btn.highlight && styles.headerBtnTextHighlight]}>{btn.label}</Text>
             </TouchableOpacity>
           ))}
         </View>
@@ -454,8 +454,10 @@ function makeStyles(t) {
     upBtnText:     {color: t.textDimmer, fontSize: 20, fontFamily: 'Courier New'},
     title:         {color: t.text, fontSize: 16, letterSpacing: 3, fontFamily: 'Courier New', fontWeight: '200'},
     headerRight:   {flexDirection: 'row', gap: 12},
-    headerBtn:     {paddingVertical: 4, paddingHorizontal: 2},
-    headerBtnText: {color: t.textDimmer, fontSize: 11, fontFamily: 'Courier New', letterSpacing: 1},
+    headerBtn:              {paddingVertical: 4, paddingHorizontal: 2},
+    headerBtnText:          {color: t.textDimmer, fontSize: 11, fontFamily: 'Courier New', letterSpacing: 1},
+    headerBtnHighlight:     {borderWidth: 1, borderColor: t.text, paddingVertical: 4, paddingHorizontal: 8},
+    headerBtnTextHighlight: {color: t.text, fontSize: 14},
     empty:         {flex: 1, justifyContent: 'center', alignItems: 'center'},
     emptyText:     {color: t.textTiny, fontFamily: 'Courier New', fontSize: 13, letterSpacing: 3},
     item:          {flexDirection: 'row', alignItems: 'center', paddingHorizontal: 20, paddingVertical: 16, gap: 14, backgroundColor: t.bg},
@@ -470,10 +472,10 @@ function makeStyles(t) {
     modalActions:  {flexDirection: 'row', justifyContent: 'flex-end', gap: 20, marginTop: 16},
     modalBtn:         {paddingVertical: 6, paddingHorizontal: 4},
     modalBtnText:     {color: t.textDim, fontSize: 12, fontFamily: 'Courier New', letterSpacing: 2},
-    tutorialOverlay:  {flex: 1, justifyContent: 'flex-end'},
-    tutorialBox:      {backgroundColor: t.surface, borderTopWidth: 1, borderTopColor: t.borderMid, paddingHorizontal: 32, paddingTop: 28, paddingBottom: 40},
-    tutorialTitle:    {color: t.textDimmer, fontSize: 11, letterSpacing: 3, fontFamily: 'Courier New', marginBottom: 16},
-    tutorialBody:     {color: t.textBody, fontSize: 13, lineHeight: 22, fontFamily: 'Courier New', marginBottom: 24},
+    tutorialOverlay:  {flex: 1, justifyContent: 'center', paddingHorizontal: 24},
+    tutorialBox:      {backgroundColor: t.surface, borderWidth: 1, borderColor: t.borderMid, paddingHorizontal: 32, paddingTop: 28, paddingBottom: 32},
+    tutorialTitle:    {color: t.textDimmer, fontSize: 13, letterSpacing: 3, fontFamily: 'Courier New', marginBottom: 16},
+    tutorialBody:     {color: t.textBody, fontSize: 16, lineHeight: 26, fontFamily: 'Courier New', marginBottom: 24},
     tutorialMono:     {color: t.textDim, fontFamily: 'Courier New'},
     tutorialActions:  {gap: 0},
     tutorialBtn:      {alignSelf: 'flex-start'},

@@ -569,6 +569,6 @@ function makeStyles(t) {
     buttonText:       {color: t.textMuted, fontFamily: 'Courier New', fontSize: 12, letterSpacing: 2},
     footnote:         {color: t.textMicro, fontFamily: 'Courier New', fontSize: 11, lineHeight: 18, marginTop: 20},
     privacyLink:      {alignSelf: 'center', marginTop: 32, paddingVertical: 8},
-    privacyLinkText:  {color: t.textMicro, fontFamily: 'Courier New', fontSize: 11, letterSpacing: 2},
+    privacyLinkText:  {color: t.textBody, fontFamily: 'Courier New', fontSize: 14, letterSpacing: 2},
   });
 }
