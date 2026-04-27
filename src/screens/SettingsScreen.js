@@ -26,6 +26,7 @@ import CryptoManager from '../crypto/CryptoManager';
 import StorageManager from '../storage/StorageManager';
 import {setSuppressLock, setAppTheme} from '../../App';
 import {useTheme} from '../theme/ThemeContext';
+import {useSafeAreaInsets} from 'react-native-safe-area-context';
 
 const DURESS_PHRASE = 'ONLY FOR DURESS';
 const MIN_PIN       = CryptoManager.MIN_PIN_LENGTH;
@@ -72,7 +73,8 @@ export default function SettingsScreen({navigation}) {
   const phraseRef        = useRef(null);
 
   const t = useTheme();
-  const styles = useMemo(() => makeStyles(t), [t]);
+  const {top: topInset} = useSafeAreaInsets();
+  const styles = useMemo(() => makeStyles(t, topInset), [t, topInset]);
 
   async function handleGateSubmit() {
     setGateError('');
@@ -534,10 +536,10 @@ export default function SettingsScreen({navigation}) {
   );
 }
 
-function makeStyles(t) {
+function makeStyles(t, topInset = 0) {
   return StyleSheet.create({
     container:        {flex: 1, backgroundColor: t.bg},
-    inner:            {flexGrow: 1, paddingHorizontal: 28, paddingTop: 56, paddingBottom: 48},
+    inner:            {flexGrow: 1, paddingHorizontal: 28, paddingTop: Math.max(topInset, 16), paddingBottom: 48},
     backRow:          {marginBottom: 32},
     backButton:       {color: t.textFaint, fontFamily: 'Courier New', fontSize: 13, letterSpacing: 1},
     sectionTitle:     {color: t.textGhost, fontSize: 11, letterSpacing: 4, fontFamily: 'Courier New', marginBottom: 32},

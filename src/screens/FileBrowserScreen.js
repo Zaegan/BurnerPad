@@ -15,6 +15,7 @@ import {
   StyleSheet, Alert, TextInput, Modal,
 } from 'react-native';
 import {useFocusEffect} from '@react-navigation/native';
+import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import {pick, keepLocalCopy, types, isCancel} from '@react-native-documents/picker';
 import RNFS from 'react-native-fs';
 import StorageManager from '../storage/StorageManager';
@@ -49,7 +50,8 @@ export default function FileBrowserScreen({navigation, route}) {
   const tutorialChecked = useRef(false);
 
   const t = useTheme();
-  const styles = useMemo(() => makeStyles(t), [t]);
+  const {top: topInset} = useSafeAreaInsets();
+  const styles = useMemo(() => makeStyles(t, topInset), [t, topInset]);
 
   useFocusEffect(useCallback(() => {
     loadItems();
@@ -455,10 +457,10 @@ export default function FileBrowserScreen({navigation, route}) {
   );
 }
 
-function makeStyles(t) {
+function makeStyles(t, topInset = 0) {
   return StyleSheet.create({
     container:     {flex: 1, backgroundColor: t.bg},
-    header:        {flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 20, paddingTop: 56, paddingBottom: 16, borderBottomWidth: 1, borderBottomColor: t.border},
+    header:        {flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 20, paddingTop: Math.max(topInset, 16), paddingBottom: 16, borderBottomWidth: 1, borderBottomColor: t.border},
     headerLeft:    {flexDirection: 'row', alignItems: 'center', gap: 12},
     upBtn:         {paddingRight: 4},
     upBtnText:     {color: t.textDimmer, fontSize: 20, fontFamily: 'Courier New'},

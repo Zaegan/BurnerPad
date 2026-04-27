@@ -31,6 +31,7 @@ import StorageManager from '../storage/StorageManager';
 import CryptoManager from '../crypto/CryptoManager';
 import {requirePin, registerBeforeLock, unregisterBeforeLock} from '../../App';
 import {useTheme} from '../theme/ThemeContext';
+import {useSafeAreaInsets} from 'react-native-safe-area-context';
 
 const SHADOW_DELAY   = 3000;
 const AUTOSAVE_DELAY = 800;
@@ -78,7 +79,8 @@ export default function EditorScreen({navigation, route}) {
   const autosaveRef   = useRef(false);
 
   const t = useTheme();
-  const styles = useMemo(() => makeStyles(t), [t]);
+  const {top: topInset} = useSafeAreaInsets();
+  const styles = useMemo(() => makeStyles(t, topInset), [t, topInset]);
 
   useEffect(() => { isDirtyRef.current = isDirty; }, [isDirty]);
   useEffect(() => { autosaveRef.current = autosave; }, [autosave]);
@@ -596,10 +598,10 @@ export default function EditorScreen({navigation, route}) {
   );
 }
 
-function makeStyles(t) {
+function makeStyles(t, topInset = 0) {
   return StyleSheet.create({
     container:      {flex: 1, backgroundColor: t.bg},
-    header:         {flexDirection: 'row', alignItems: 'center', paddingHorizontal: 20, paddingTop: 56, paddingBottom: 14, borderBottomWidth: 1, borderBottomColor: t.border, gap: 10},
+    header:         {flexDirection: 'row', alignItems: 'center', paddingHorizontal: 20, paddingTop: Math.max(topInset, 16), paddingBottom: 14, borderBottomWidth: 1, borderBottomColor: t.border, gap: 10},
     upBtn:          {paddingRight: 4},
     upBtnText:      {color: t.textDimmer, fontSize: 20, fontFamily: 'Courier New'},
     titleContainer: {flex: 1},

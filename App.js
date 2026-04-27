@@ -17,6 +17,7 @@
 import React, {useEffect, useState, useRef, useMemo} from 'react';
 import {AppState, View, ActivityIndicator, StyleSheet, useColorScheme} from 'react-native';
 import {NavigationContainer, StackActions} from '@react-navigation/native';
+import {SafeAreaProvider} from 'react-native-safe-area-context';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import CryptoManager from './src/crypto/CryptoManager';
 import MigrationManager from './src/crypto/MigrationManager';
@@ -152,6 +153,7 @@ export default function App() {
 
   return (
     <ThemeProvider theme={theme}>
+      <SafeAreaProvider>
       <NavigationContainer ref={navigationRef} onReady={onNavigationReady}>
         <Stack.Navigator
           initialRouteName={initialRoute}
@@ -168,6 +170,7 @@ export default function App() {
           <Stack.Screen name="Settings"    component={SettingsScreen} />
         </Stack.Navigator>
       </NavigationContainer>
+      </SafeAreaProvider>
     </ThemeProvider>
   );
 }
