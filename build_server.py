@@ -589,10 +589,24 @@ android {{
         versionName "{manifest['version_name']}"
     }}
 
+    signingConfigs {{
+        debug {{
+            storeFile file(System.getProperty("user.home") + "/.android/debug.keystore")
+            storePassword "android"
+            keyAlias "androiddebugkey"
+            keyPassword "android"
+        }}
+    }}
+
     buildTypes {{
         release {{
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }}
+        releaseSigned {{
+            initWith(buildTypes.release)
+            signingConfig signingConfigs.debug
+            matchingFallbacks = ['release']
         }}
     }}
 
@@ -743,7 +757,7 @@ def native_build(repo_name, app_dir, job_id):
     log(job_id, "Running native Gradle build...")
     env = base_env()
     rc, out = run(
-        "gradle clean assembleRelease bundleRelease",
+        "gradle clean assembleRelease assembleReleaseSigned bundleRelease",
         cwd=app_dir, env=env, job_id=job_id
     )
     return rc == 0, out
@@ -835,10 +849,12 @@ def run_job(job_id, repo_name, ref, subpath, force_clean):
             if success:
                 save_manifest_cache(repo_name, manifest)
                 apk_path = app_dir / "app" / "build" / "outputs" / "apk" / "release" / "app-release.apk"
+                signed_apk_path = app_dir / "app" / "build" / "outputs" / "apk" / "releaseSigned" / "app-releaseSigned.apk"
                 aab_path = app_dir / "app" / "build" / "outputs" / "bundle" / "release" / "app-release.aab"
                 result_message = (
                     f"status: success\n"
                     f"apk: {apk_path}\n"
+                    f"signed_apk: {signed_apk_path}\n"
                     f"aab: {aab_path}"
                 )
             else:
@@ -1075,8 +1091,9 @@ def run_cli(repo_dir, output_dir, force_clean):
         if success:
             save_manifest_cache(repo_name, manifest)
             apk = app_dir / "app" / "build" / "outputs" / "apk" / "release" / "app-release.apk"
+            signed_apk = app_dir / "app" / "build" / "outputs" / "apk" / "releaseSigned" / "app-releaseSigned.apk"
             aab = app_dir / "app" / "build" / "outputs" / "bundle" / "release" / "app-release.aab"
-            artifacts = [p for p in [apk, aab] if p.exists()]
+            artifacts = [p for p in [apk, signed_apk, aab] if p.exists()]
         else:
             print(f"Build FAILED.\n{build_output}", flush=True)
             sys.exit(1)
