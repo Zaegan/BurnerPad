@@ -568,6 +568,10 @@ def native_build_gradle(pkg_name, repo_name, manifest):
     """Generate server-owned app/build.gradle for a native Android project."""
     deps = manifest.get("dependencies", [])
     dep_lines = "\n".join(f'    implementation "{d}"' for d in deps)
+    module_dep_lines = "\n".join(
+        f"    implementation project(':{m['name']}')"
+        for m in manifest.get("modules", [])
+    )
     java_version = manifest.get("java_version", "11")
     # Normalise: accept "1.8", "8", "11", "17" etc.
     jv_map = {"1.8": "VERSION_1_8", "8": "VERSION_1_8"}
@@ -604,6 +608,7 @@ android {{
 
 dependencies {{
 {dep_lines}
+{module_dep_lines}
 }}
 
 // Debug-signed release variant for sideload testing
@@ -619,8 +624,9 @@ android {{
 """
 
 
-def native_settings_gradle(repo_name):
+def native_settings_gradle(repo_name, modules=None):
     """Generate server-owned settings.gradle for a native Android project."""
+    module_includes = "\n".join(f"include ':{m['name']}'" for m in (modules or []))
     return f"""\
 pluginManagement {{
     repositories {{
@@ -639,6 +645,30 @@ dependencyResolutionManagement {{
 
 rootProject.name = '{repo_name}'
 include ':app'
+{module_includes}
+"""
+
+
+def native_java_library_gradle(module_spec):
+    """Generate server-owned build.gradle for a java-library module."""
+    deps = module_spec.get("dependencies", [])
+    dep_lines = "\n".join(f'    implementation "{d}"' for d in deps)
+    java_version = module_spec.get("java_version", "11")
+    jv_map = {"1.8": "VERSION_1_8", "8": "VERSION_1_8"}
+    jv_const = jv_map.get(java_version, f"VERSION_{java_version}")
+    return f"""\
+plugins {{
+    id 'java-library'
+}}
+
+java {{
+    sourceCompatibility = JavaVersion.{jv_const}
+    targetCompatibility = JavaVersion.{jv_const}
+}}
+
+dependencies {{
+{dep_lines}
+}}
 """
 
 
@@ -685,7 +715,8 @@ def native_init(repo_name, manifest, job_id):
     app_dir.mkdir(parents=True)
 
     # Write server-owned Gradle files
-    (app_dir / "settings.gradle").write_text(native_settings_gradle(repo_name))
+    modules = manifest.get("modules", [])
+    (app_dir / "settings.gradle").write_text(native_settings_gradle(repo_name, modules))
     (app_dir / "build.gradle").write_text(native_top_build_gradle(manifest))
     (app_dir / "gradle.properties").write_text(native_gradle_properties())
     (app_dir / "app").mkdir()
@@ -718,11 +749,24 @@ def native_init(repo_name, manifest, job_id):
 </manifest>
 """)
 
+    # Scaffold additional library modules
+    for module in modules:
+        mod_name = module["name"]
+        mod_type = module.get("type", "java-library")
+        log(job_id, f"Scaffolding module :{mod_name} ({mod_type})...")
+        mod_dir = app_dir / mod_name
+        mod_dir.mkdir(parents=True)
+        if mod_type == "java-library":
+            (mod_dir / "build.gradle").write_text(native_java_library_gradle(module))
+            (mod_dir / "src" / "main" / "java").mkdir(parents=True)
+        else:
+            log(job_id, f"WARNING: Unknown module type '{mod_type}' for :{mod_name} — skipping.")
+
     log(job_id, "Native scaffold ready.")
     return None
 
 
-def native_sync_source(repo_name, repo_dir, app_dir, job_id):
+def native_sync_source(repo_name, repo_dir, app_dir, job_id, manifest=None):
     """Sync native Android source files from repo into scaffold."""
     log(job_id, "Syncing native source files...")
 
@@ -738,6 +782,22 @@ def native_sync_source(repo_name, repo_dir, app_dir, job_id):
                 shutil.copy2(src_file, dst_file)
     else:
         return "app/src directory not found in repo — check repo layout convention."
+
+    # Sync additional library module source trees
+    for module in (manifest or {}).get("modules", []):
+        mod_name = module["name"]
+        src_mod = repo_dir / mod_name / "src"
+        dst_mod = app_dir / mod_name / "src"
+        if src_mod.exists():
+            log(job_id, f"Syncing module :{mod_name} source...")
+            for src_file in src_mod.rglob("*"):
+                if src_file.is_file():
+                    rel = src_file.relative_to(src_mod)
+                    dst_file = dst_mod / rel
+                    dst_file.parent.mkdir(parents=True, exist_ok=True)
+                    shutil.copy2(src_file, dst_file)
+        else:
+            log(job_id, f"WARNING: {mod_name}/src not found in repo — module may not compile.")
 
     # Generate icons into res dir
     res_dir = app_dir / "app" / "src" / "main" / "res"
@@ -837,7 +897,7 @@ def run_job(job_id, repo_name, ref, subpath, force_clean):
                 if error:
                     raise RuntimeError(error)
 
-            error = native_sync_source(repo_name, repo_dir, app_dir, job_id)
+            error = native_sync_source(repo_name, repo_dir, app_dir, job_id, manifest)
             if error:
                 raise RuntimeError(error)
 
@@ -1078,7 +1138,7 @@ def run_cli(repo_dir, output_dir, force_clean):
                 print(f"ERROR: {error}", flush=True)
                 sys.exit(1)
 
-        error = native_sync_source(repo_name, repo_dir, app_dir, job_id)
+        error = native_sync_source(repo_name, repo_dir, app_dir, job_id, manifest)
         if error:
             print(f"ERROR: {error}", flush=True)
             sys.exit(1)
