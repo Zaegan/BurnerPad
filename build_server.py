@@ -589,24 +589,10 @@ android {{
         versionName "{manifest['version_name']}"
     }}
 
-    signingConfigs {{
-        debug {{
-            storeFile file(System.getProperty("user.home") + "/.android/debug.keystore")
-            storePassword "android"
-            keyAlias "androiddebugkey"
-            keyPassword "android"
-        }}
-    }}
-
     buildTypes {{
         release {{
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
-        }}
-        releaseSigned {{
-            initWith(buildTypes.release)
-            signingConfig signingConfigs.debug
-            matchingFallbacks = ['release']
         }}
     }}
 
@@ -618,6 +604,17 @@ android {{
 
 dependencies {{
 {dep_lines}
+}}
+
+// Debug-signed release variant for sideload testing
+android {{
+    buildTypes {{
+        releaseSigned {{
+            initWith(buildTypes.release)
+            signingConfig signingConfigs.debug
+            matchingFallbacks = ['release']
+        }}
+    }}
 }}
 """
 
