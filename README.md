@@ -19,6 +19,7 @@ BurnerPad is an open-source, plain-text notepad for Android with no ads, no clou
 - **Backup / Restore** — encrypted archive (AES-256-CBC, PBKDF2-derived key, 12+ char password) saved to Downloads
 - **Schema versioning** — forward-compatible archive format with migration support
 - **No-PIN mode** — set PIN to `12345` to skip the lock screen silently
+- **Themes** — dark, light, and system-default
 
 ---
 
@@ -47,26 +48,28 @@ BurnerPad is a React Native 0.84.1 app for Android. There is no iOS support.
 ### Prerequisites
 
 - x86-64 Linux (AAPT2 is x86-64 only — ARM build hosts are not supported)
-- Node.js v20+ (via nvm recommended)
+- Python 3
 - Java 17 (`JAVA_HOME` must point to JDK 17)
 - Android SDK with platform-tools, android-36, and build-tools/36.0.0 (`ANDROID_HOME` must be set)
-- npx
+- imagemagick (`sudo apt install imagemagick`)
+- nvm and Node.js v20+ are installed automatically by `build_server.py` if not present
 
 ### Build
 
-Source files live in `BurnerPad/`. The build scaffold is generated fresh each time by the build script.
+The React Native scaffold is generated fresh on each clean build. Source files are synced in from `src/`, `android/`, and `App.js`.
 
 ```bash
-chmod +x rebuild_burnerpad.sh
-./rebuild_burnerpad.sh
+python3 build_server.py --repo-dir . --output-dir ./out
 ```
 
-The APK will be at:
-```
-BurnerPadApp/android/app/build/outputs/apk/release/app-release.apk
-```
+Artifacts will be copied to `./out/`:
+- `app-release.apk` — unsigned release APK (sign with your own key for distribution)
+- `app-releaseSigned.apk` — debug-signed APK for sideload testing
+- `app-release.aab` — Android App Bundle for Play Store upload
 
-`BurnerPadApp/` is in `.gitignore` — it is always regenerated and should never be committed.
+Add `--clean` to force a full scaffold rebuild (required after dependency changes).
+
+The generated scaffold directory is outside the repo in `~/build_server/workspace/` and should never be committed.
 
 ---
 
@@ -74,21 +77,33 @@ BurnerPadApp/android/app/build/outputs/apk/release/app-release.apk
 
 ```
 BurnerPad/
-├── rebuild_burnerpad.sh      # Build script
-├── .gitignore
-├── README.md
-└── BurnerPad/                # Source files
-    ├── App.js                # Entry point, AppState lock management
-    ├── CryptoManager.js      # PIN/key/session management
-    ├── MigrationManager.js   # Schema versioning
-    ├── StorageManager.js     # Note CRUD, archive backup/restore
-    ├── CryptoModule.kt       # Native Android crypto (PBKDF2, AES, HMAC)
-    ├── CryptoPackage.kt      # React Native module registration
-    ├── OnboardingScreen.js   # First launch PIN setup
-    ├── PinScreen.js          # Lock screen
-    ├── FileBrowserScreen.js  # Note and folder browser
-    ├── EditorScreen.js       # Plain text editor
-    └── SettingsScreen.js     # Autosave, PIN change, backup, duress PIN
+├── build.json                # Build configuration (version, dependencies)
+├── build_server.py           # Build script — run standalone or as a service
+├── icon-512.png              # Source icon (512×512, used to generate all densities)
+├── App.js                    # Entry point, AppState lock/unlock management
+├── src/
+│   ├── crypto/
+│   │   ├── CryptoManager.js  # PIN/key/session management
+│   │   └── MigrationManager.js # Archive schema versioning and migration
+│   ├── screens/
+│   │   ├── OnboardingScreen.js # First launch PIN setup
+│   │   ├── PinScreen.js      # Lock screen, cold-start navigation restore
+│   │   ├── FileBrowserScreen.js # Note and folder browser
+│   │   ├── EditorScreen.js   # Plain text editor with autosave
+│   │   ├── SettingsScreen.js # Autosave, PIN change, backup, duress PIN, theme
+│   │   └── WalkthroughScreen.js # Feature walkthrough
+│   ├── storage/
+│   │   └── StorageManager.js # Note CRUD, shadow/recovery, archive backup/restore
+│   ├── theme/
+│   │   ├── ThemeContext.js   # Theme provider and hook
+│   │   └── themes.js         # Dark, light, and system theme definitions
+│   └── tutorial/
+│       └── TutorialManager.js # In-app tutorial state and dismissal
+└── android/
+    └── app/src/main/java/com/github/zaegan/burnerpad/
+        ├── CryptoModule.kt   # Native Android crypto (PBKDF2, AES-256-CBC, HMAC-SHA256)
+        ├── CryptoPackage.kt  # React Native module registration
+        └── MainActivity.kt   # Activity entry point
 ```
 
 ---
