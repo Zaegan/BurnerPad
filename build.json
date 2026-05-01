@@ -1,5 +1,6 @@
 {
     "type": "react-native",
+    "app_name": "BurnerPad",
     "react_native_version": "0.84.1",
     "version_code": 5,
     "version_name": "1.1.3",
