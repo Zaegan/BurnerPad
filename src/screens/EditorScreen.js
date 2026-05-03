@@ -79,8 +79,8 @@ export default function EditorScreen({navigation, route}) {
   const autosaveRef   = useRef(false);
 
   const t = useTheme();
-  const {top: topInset} = useSafeAreaInsets();
-  const styles = useMemo(() => makeStyles(t, topInset), [t, topInset]);
+  const {top: topInset, bottom: bottomInset} = useSafeAreaInsets();
+  const styles = useMemo(() => makeStyles(t, topInset, bottomInset), [t, topInset, bottomInset]);
 
   useEffect(() => { isDirtyRef.current = isDirty; }, [isDirty]);
   useEffect(() => { autosaveRef.current = autosave; }, [autosave]);
@@ -598,7 +598,7 @@ export default function EditorScreen({navigation, route}) {
   );
 }
 
-function makeStyles(t, topInset = 0) {
+function makeStyles(t, topInset = 0, bottomInset = 0) {
   return StyleSheet.create({
     container:      {flex: 1, backgroundColor: t.bg},
     header:         {flexDirection: 'row', alignItems: 'center', paddingHorizontal: 20, paddingTop: Math.max(topInset, 16), paddingBottom: 14, borderBottomWidth: 1, borderBottomColor: t.border, gap: 10},
@@ -625,7 +625,7 @@ function makeStyles(t, topInset = 0) {
       letterSpacing: 0.3,
       minHeight: '100%',
     },
-    footer:         {flexDirection: 'row', justifyContent: 'space-between', paddingHorizontal: 24, paddingVertical: 10, borderTopWidth: 1, borderTopColor: t.border},
+    footer:         {flexDirection: 'row', justifyContent: 'space-between', paddingHorizontal: 24, paddingTop: 10, paddingBottom: 10 + bottomInset, borderTopWidth: 1, borderTopColor: t.border},
     footerText:     {color: t.textTiny, fontSize: 11, fontFamily: 'Courier New', letterSpacing: 1},
     menuOverlay:    {flex: 1, backgroundColor: 'transparent'},
     menuBox:        {position: 'absolute', top: 100, right: 16, backgroundColor: t.surfaceAlt, borderWidth: 1, borderColor: t.borderStrong, minWidth: 140, elevation: 8},
