@@ -495,7 +495,7 @@ export default function EditorScreen({navigation, route}) {
       </KeyboardAvoidingView>
 
       {/* Footer */}
-      <View style={[styles.footer, {paddingBottom: 10 + bottomInset}]}>
+      <View style={[styles.footer, {paddingBottom: bottomInset}]}>
         <Text style={styles.footerText}>
           {wordCount} {wordCount === 1 ? 'word' : 'words'} · {charCount} {charCount === 1 ? 'char' : 'chars'}
         </Text>
