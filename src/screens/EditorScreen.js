@@ -24,7 +24,7 @@ import React, {useState, useEffect, useRef, useMemo} from 'react';
 import {
   View, Text, TextInput, StyleSheet,
   TouchableOpacity, TouchableWithoutFeedback,
-  Alert, Modal, ScrollView, KeyboardAvoidingView, Platform, Keyboard,
+  Alert, Modal, ScrollView, KeyboardAvoidingView, Platform,
 } from 'react-native';
 import RNFS from 'react-native-fs';
 import StorageManager from '../storage/StorageManager';
@@ -82,12 +82,6 @@ export default function EditorScreen({navigation, route}) {
   const {top: topInset, bottom: bottomInset} = useSafeAreaInsets();
   const styles = useMemo(() => makeStyles(t, topInset), [t, topInset]);
 
-  const [keyboardShowing, setKeyboardShowing] = useState(false);
-  useEffect(() => {
-    const show = Keyboard.addListener('keyboardDidShow', () => setKeyboardShowing(true));
-    const hide = Keyboard.addListener('keyboardDidHide', () => setKeyboardShowing(false));
-    return () => { show.remove(); hide.remove(); };
-  }, []);
 
   useEffect(() => { isDirtyRef.current = isDirty; }, [isDirty]);
   useEffect(() => { autosaveRef.current = autosave; }, [autosave]);
@@ -446,9 +440,8 @@ export default function EditorScreen({navigation, route}) {
   const charCount = content.length;
 
   return (
-    <KeyboardAvoidingView
-      style={styles.container}
-      behavior="padding">
+    <View style={styles.container}>
+      <KeyboardAvoidingView style={{flex: 1}} behavior="padding">
 
       {/* Header */}
       <View style={styles.header}>
@@ -499,8 +492,10 @@ export default function EditorScreen({navigation, route}) {
         <View style={{height: BOTTOM_SPACER}} />
       </ScrollView>
 
-      {/* Footer — bottom inset applied only when keyboard is hidden */}
-      <View style={[styles.footer, {paddingBottom: 10 + (keyboardShowing ? 0 : bottomInset)}]}>
+      </KeyboardAvoidingView>
+
+      {/* Footer */}
+      <View style={[styles.footer, {paddingBottom: 10 + bottomInset}]}>
         <Text style={styles.footerText}>
           {wordCount} {wordCount === 1 ? 'word' : 'words'} · {charCount} {charCount === 1 ? 'char' : 'chars'}
         </Text>
@@ -601,7 +596,7 @@ export default function EditorScreen({navigation, route}) {
           </View>
         </View>
       </Modal>
-    </KeyboardAvoidingView>
+    </View>
   );
 }
 
