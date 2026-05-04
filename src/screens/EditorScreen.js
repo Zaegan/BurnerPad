@@ -79,12 +79,13 @@ export default function EditorScreen({navigation, route}) {
   const autosaveRef     = useRef(false);
   const {height: windowHeight} = useWindowDimensions();
 
-  const scrollViewRef   = useRef(null);
-  const selectionEndRef = useRef(0);
-  const contentHRef     = useRef(0);
-  const scrollYRef      = useRef(0);
-  const windowHeightRef = useRef(windowHeight);
-  const bottomInsetRef  = useRef(0);  // kept current for use inside async callbacks
+  const scrollViewRef        = useRef(null);
+  const selectionEndRef      = useRef(0);
+  const contentHRef          = useRef(0);
+  const scrollYRef           = useRef(0);
+  const scrollYWindowHRef    = useRef(windowHeight); // windowHeight when scrollYRef was last set
+  const windowHeightRef      = useRef(windowHeight);
+  const bottomInsetRef       = useRef(0);  // kept current for use inside async callbacks
 
   const t = useTheme();
   const {top: topInset, bottom: bottomInset} = useSafeAreaInsets();
@@ -122,11 +123,15 @@ export default function EditorScreen({navigation, route}) {
         const currWH   = windowHeightRef.current;
         const visibleH = currWH - kh - bottomInsetRef.current - topInset - 60;
         if (visibleH <= 0) return;
-        // scrollYRef may be stale after rotation (ScrollView adjusts without firing onScroll).
-        // Clamp to the minimum scroll that would make the cursor visible at the bottom of
-        // the viewport — prevents a falsely-large scrollBot suppressing the scroll.
-        const safeScrollY = Math.min(scrollYRef.current, Math.max(0, cursorY - visibleH));
-        const scrollBot   = safeScrollY + visibleH;
+        // If windowHeight changed since scrollYRef was last updated, the ScrollView
+        // silently adjusted its offset on rotation without firing onScroll — ref is stale.
+        // When stale, assume the worst case: cursor is at the very bottom of the viewport,
+        // which always triggers the scroll below and lets the ScrollView settle correctly.
+        const scrollYIsStale = scrollYWindowHRef.current !== windowHeightRef.current;
+        const effectiveScrollY = scrollYIsStale
+          ? Math.max(0, cursorY - visibleH)
+          : scrollYRef.current;
+        const scrollBot = effectiveScrollY + visibleH;
         if (cursorY > scrollBot - 40) {
           scrollViewRef.current.scrollTo({
             y: Math.max(0, cursorY - visibleH + 80),
@@ -544,7 +549,10 @@ export default function EditorScreen({navigation, route}) {
         showsVerticalScrollIndicator={false}
         decelerationRate="normal"
         scrollEventThrottle={100}
-        onScroll={e => { scrollYRef.current = e.nativeEvent.contentOffset.y; }}>
+        onScroll={e => {
+          scrollYRef.current = e.nativeEvent.contentOffset.y;
+          scrollYWindowHRef.current = windowHeightRef.current; // record orientation at scroll time
+        }}>
         {isLoaded && (
           <TextInput
             style={styles.editor}
