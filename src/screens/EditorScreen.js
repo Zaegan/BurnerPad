@@ -24,7 +24,7 @@ import React, {useState, useEffect, useRef, useMemo} from 'react';
 import {
   View, Text, TextInput, StyleSheet,
   TouchableOpacity, TouchableWithoutFeedback,
-  Alert, Modal, ScrollView, Keyboard,
+  Alert, Modal, ScrollView, Keyboard, useWindowDimensions,
 } from 'react-native';
 import RNFS from 'react-native-fs';
 import StorageManager from '../storage/StorageManager';
@@ -71,23 +71,53 @@ export default function EditorScreen({navigation, route}) {
   const [saveAsError, setSaveAsError]     = useState('');
   const [isSavingAs, setIsSavingAs]       = useState(false);
 
-  const saveTimer     = useRef(null);
-  const shadowTimer   = useRef(null);
-  const latestContent = useRef('');
-  const latestPath    = useRef(notePath);
-  const isDirtyRef    = useRef(false);
-  const autosaveRef   = useRef(false);
+  const saveTimer       = useRef(null);
+  const shadowTimer     = useRef(null);
+  const latestContent   = useRef('');
+  const latestPath      = useRef(notePath);
+  const isDirtyRef      = useRef(false);
+  const autosaveRef     = useRef(false);
+  const scrollViewRef   = useRef(null);
+  const selectionEndRef = useRef(0);
+  const contentHRef     = useRef(0);
+  const scrollYRef      = useRef(0);
 
   const t = useTheme();
   const {top: topInset, bottom: bottomInset} = useSafeAreaInsets();
   const styles = useMemo(() => makeStyles(t, topInset), [t, topInset]);
+  const {height: windowHeight} = useWindowDimensions();
 
   const [keyboardHeight, setKeyboardHeight] = useState(0);
   useEffect(() => {
-    const show = Keyboard.addListener('keyboardDidShow', e => setKeyboardHeight(e.endCoordinates.height));
+    const show = Keyboard.addListener('keyboardDidShow', e => {
+      const kh = e.endCoordinates.height;
+      setKeyboardHeight(kh);
+      // After state update reflows the layout (marginBottom on ScrollView),
+      // scroll to ensure the cursor is above the keyboard.
+      setTimeout(() => {
+        if (!scrollViewRef.current) return;
+        const total = latestContent.current.length;
+        if (total === 0) return;
+        const pos       = selectionEndRef.current;
+        const contentH  = contentHRef.current;
+        // Estimate cursor Y in document space using content height proportion.
+        // Courier New is monospace so this is reasonably accurate.
+        const cursorY   = 24 + (pos / total) * Math.max(0, contentH - 24); // 24 = editor paddingTop
+        // Visible scrollview height with keyboard (subtract header ~60, footer ~40, status bar)
+        const visibleH  = windowHeight - kh - topInset - 100;
+        const scrollBot = scrollYRef.current + visibleH;
+        // Only scroll if cursor is near or below the visible bottom
+        if (cursorY > scrollBot - 40) {
+          scrollViewRef.current.scrollTo({
+            y: Math.max(0, cursorY - visibleH + 80),
+            animated: true,
+          });
+        }
+      }, 80);
+    });
     const hide = Keyboard.addListener('keyboardDidHide', () => setKeyboardHeight(0));
     return () => { show.remove(); hide.remove(); };
-  }, []);
+  }, [windowHeight, topInset]);
 
   useEffect(() => { isDirtyRef.current = isDirty; }, [isDirty]);
   useEffect(() => { autosaveRef.current = autosave; }, [autosave]);
@@ -471,12 +501,15 @@ export default function EditorScreen({navigation, route}) {
       {/* Scrollable editor — ScrollView provides momentum scrolling,
           TextInput grows to full content height so scroll is independent of cursor */}
       <ScrollView
+        ref={scrollViewRef}
         style={[styles.scrollView, {marginBottom: keyboardHeight}]}
         contentContainerStyle={styles.scrollContent}
         keyboardShouldPersistTaps="handled"
         keyboardDismissMode="none"
         showsVerticalScrollIndicator={false}
-        decelerationRate="normal">
+        decelerationRate="normal"
+        scrollEventThrottle={100}
+        onScroll={e => { scrollYRef.current = e.nativeEvent.contentOffset.y; }}>
         {isLoaded && (
           <TextInput
             style={styles.editor}
@@ -491,6 +524,8 @@ export default function EditorScreen({navigation, route}) {
             placeholder="start typing…"
             placeholderTextColor={t.textTiny}
             disableFullscreenUI={true}
+            onSelectionChange={e => { selectionEndRef.current = e.nativeEvent.selection.end; }}
+            onContentSizeChange={e => { contentHRef.current = e.nativeEvent.contentSize.height; }}
           />
         )}
         {/* Allows last line to scroll toward top of screen */}
