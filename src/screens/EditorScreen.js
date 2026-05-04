@@ -502,7 +502,7 @@ export default function EditorScreen({navigation, route}) {
           TextInput grows to full content height so scroll is independent of cursor */}
       <ScrollView
         ref={scrollViewRef}
-        style={[styles.scrollView, {marginBottom: keyboardHeight}]}
+        style={styles.scrollView}
         contentContainerStyle={styles.scrollContent}
         keyboardShouldPersistTaps="handled"
         keyboardDismissMode="none"
@@ -532,13 +532,15 @@ export default function EditorScreen({navigation, route}) {
         <View style={{height: BOTTOM_SPACER}} />
       </ScrollView>
 
-      {/* Footer */}
-      <View style={[styles.footer, {paddingBottom: bottomInset}]}>
+      {/* Footer — always visible; spacer below it fills keyboard height to push it up */}
+      <View style={[styles.footer, {paddingBottom: keyboardHeight > 0 ? 4 : bottomInset}]}>
         <Text style={styles.footerText}>
           {wordCount} {wordCount === 1 ? 'word' : 'words'} · {charCount} {charCount === 1 ? 'char' : 'chars'}
         </Text>
         <Text style={styles.footerText}>{isDirty && !autosave ? 'unsaved' : 'plain text'}</Text>
       </View>
+      {/* Spacer that fills the keyboard area, pushing the footer into the visible zone */}
+      <View style={{height: keyboardHeight}} />
 
       {/* ... Dropdown menu */}
       <Modal visible={menuVisible} transparent animationType="fade" onRequestClose={() => setMenuVisible(false)}>
