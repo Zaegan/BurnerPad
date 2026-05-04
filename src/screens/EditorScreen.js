@@ -24,7 +24,7 @@ import React, {useState, useEffect, useRef, useMemo} from 'react';
 import {
   View, Text, TextInput, StyleSheet,
   TouchableOpacity, TouchableWithoutFeedback,
-  Alert, Modal, ScrollView, KeyboardAvoidingView, Platform,
+  Alert, Modal, ScrollView, Keyboard,
 } from 'react-native';
 import RNFS from 'react-native-fs';
 import StorageManager from '../storage/StorageManager';
@@ -82,6 +82,12 @@ export default function EditorScreen({navigation, route}) {
   const {top: topInset, bottom: bottomInset} = useSafeAreaInsets();
   const styles = useMemo(() => makeStyles(t, topInset), [t, topInset]);
 
+  const [keyboardHeight, setKeyboardHeight] = useState(0);
+  useEffect(() => {
+    const show = Keyboard.addListener('keyboardDidShow', e => setKeyboardHeight(e.endCoordinates.height));
+    const hide = Keyboard.addListener('keyboardDidHide', () => setKeyboardHeight(0));
+    return () => { show.remove(); hide.remove(); };
+  }, []);
 
   useEffect(() => { isDirtyRef.current = isDirty; }, [isDirty]);
   useEffect(() => { autosaveRef.current = autosave; }, [autosave]);
@@ -441,7 +447,6 @@ export default function EditorScreen({navigation, route}) {
 
   return (
     <View style={styles.container}>
-      <KeyboardAvoidingView style={{flex: 1}} behavior="padding">
 
       {/* Header */}
       <View style={styles.header}>
@@ -466,7 +471,7 @@ export default function EditorScreen({navigation, route}) {
       {/* Scrollable editor — ScrollView provides momentum scrolling,
           TextInput grows to full content height so scroll is independent of cursor */}
       <ScrollView
-        style={styles.scrollView}
+        style={[styles.scrollView, {marginBottom: keyboardHeight}]}
         contentContainerStyle={styles.scrollContent}
         keyboardShouldPersistTaps="handled"
         keyboardDismissMode="none"
@@ -491,8 +496,6 @@ export default function EditorScreen({navigation, route}) {
         {/* Allows last line to scroll toward top of screen */}
         <View style={{height: BOTTOM_SPACER}} />
       </ScrollView>
-
-      </KeyboardAvoidingView>
 
       {/* Footer */}
       <View style={[styles.footer, {paddingBottom: bottomInset}]}>
