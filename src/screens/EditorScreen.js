@@ -85,6 +85,7 @@ export default function EditorScreen({navigation, route}) {
   const scrollYRef          = useRef(0);
   const windowHeightRef     = useRef(windowHeight);  // always-current windowHeight for async callbacks
   const baseWindowHeightRef = useRef(windowHeight);  // windowHeight when keyboard is absent
+  const [dbgBase, setDbgBase] = useState(windowHeight); // DEBUG: mirrors baseWindowHeightRef for display
 
   const t = useTheme();
   const {top: topInset, bottom: bottomInset} = useSafeAreaInsets();
@@ -128,7 +129,10 @@ export default function EditorScreen({navigation, route}) {
       setKeyboardHeight(0);
       // Capture full-screen window height once keyboard is fully dismissed.
       // Delay slightly so Dimensions has settled after adjustResize expansion.
-      setTimeout(() => { baseWindowHeightRef.current = windowHeightRef.current; }, 50);
+      setTimeout(() => {
+        baseWindowHeightRef.current = windowHeightRef.current;
+        setDbgBase(windowHeightRef.current); // DEBUG
+      }, 50);
     });
     return () => { show.remove(); hide.remove(); };
   }, [topInset]);  // windowHeight intentionally omitted — read via ref inside callbacks
@@ -567,6 +571,13 @@ export default function EditorScreen({navigation, route}) {
       </View>
       {/* Adaptive spacer: fills the keyboard overlay area (0 with adjustResize, kh with adjustNothing) */}
       <View style={{height: spacerHeight}} />
+
+      {/* DEBUG OVERLAY — remove before release */}
+      <View style={{position:'absolute',top:80,right:0,backgroundColor:'rgba(0,0,0,0.75)',padding:4,zIndex:9999}}>
+        <Text style={{color:'#0f0',fontFamily:'Courier New',fontSize:10}}>
+          {`wH:${Math.round(windowHeight)} base:${Math.round(dbgBase)} spc:${Math.round(spacerHeight)} kH:${Math.round(keyboardHeight)} bi:${Math.round(bottomInset)}`}
+        </Text>
+      </View>
 
       {/* ... Dropdown menu */}
       <Modal visible={menuVisible} transparent animationType="fade" onRequestClose={() => setMenuVisible(false)}>
