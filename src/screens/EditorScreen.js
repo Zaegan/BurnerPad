@@ -101,14 +101,23 @@ export default function EditorScreen({navigation, route}) {
       setTimeout(() => {
         if (!scrollViewRef.current) return;
         if (latestContent.current.length === 0) return;
-        // Count newlines before the cursor for an accurate line-based Y estimate.
-        // The previous character-proportion formula over-shot when many newlines
-        // followed the cursor (large contentH, small pos/total → inflated cursorY).
-        const textToCursor = latestContent.current.slice(0, selectionEndRef.current);
+        // Estimate cursor Y using newline count (accurate for single-line paragraphs)
+        // scaled by a wrap factor derived from the measured content height
+        // (accounts for long lines that wrap to multiple visual lines).
+        const text         = latestContent.current;
+        const textToCursor = text.slice(0, selectionEndRef.current);
         const linesBefore  = textToCursor.split('\n').length - 1;
+        const totalLines   = text.split('\n').length;
         const EDITOR_LINE_H  = 24;  // must match styles.editor.lineHeight
         const EDITOR_PAD_TOP = 24;  // must match styles.editor.paddingTop
-        const cursorY  = EDITOR_PAD_TOP + linesBefore * EDITOR_LINE_H;
+        const EDITOR_PAD_BOT = 8;   // must match styles.editor.paddingBottom
+        const contentH     = contentHRef.current;
+        // Visual line count from the TextInput's measured height; always >= logical lines
+        const visualLines  = contentH > 0
+          ? Math.max(totalLines, (contentH - EDITOR_PAD_TOP - EDITOR_PAD_BOT) / EDITOR_LINE_H)
+          : totalLines;
+        const wrapFactor = visualLines / totalLines;
+        const cursorY    = EDITOR_PAD_TOP + linesBefore * EDITOR_LINE_H * wrapFactor;
         // visibleH: subtract keyboard, nav-bar inset, header/footer (~60px each)
         const currWH   = windowHeightRef.current;
         const visibleH = currWH - kh - bottomInsetRef.current - topInset - 60;
