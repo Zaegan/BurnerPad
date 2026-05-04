@@ -448,7 +448,7 @@ export default function EditorScreen({navigation, route}) {
   return (
     <KeyboardAvoidingView
       style={styles.container}
-      behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+      behavior="padding">
 
       {/* Header */}
       <View style={styles.header}>
