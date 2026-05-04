@@ -77,23 +77,28 @@ export default function EditorScreen({navigation, route}) {
   const latestPath      = useRef(notePath);
   const isDirtyRef      = useRef(false);
   const autosaveRef     = useRef(false);
-  const scrollViewRef   = useRef(null);
-  const selectionEndRef = useRef(0);
-  const contentHRef     = useRef(0);
-  const scrollYRef      = useRef(0);
+  const {height: windowHeight} = useWindowDimensions();
+
+  const scrollViewRef       = useRef(null);
+  const selectionEndRef     = useRef(0);
+  const contentHRef         = useRef(0);
+  const scrollYRef          = useRef(0);
+  const windowHeightRef     = useRef(windowHeight);  // always-current windowHeight for async callbacks
+  const baseWindowHeightRef = useRef(windowHeight);  // windowHeight when keyboard is absent
 
   const t = useTheme();
   const {top: topInset, bottom: bottomInset} = useSafeAreaInsets();
   const styles = useMemo(() => makeStyles(t, topInset), [t, topInset]);
-  const {height: windowHeight} = useWindowDimensions();
+
+  // Keep refs current so async callbacks (setTimeout) always read the latest values
+  useEffect(() => { windowHeightRef.current = windowHeight; }, [windowHeight]);
 
   const [keyboardHeight, setKeyboardHeight] = useState(0);
   useEffect(() => {
     const show = Keyboard.addListener('keyboardDidShow', e => {
       const kh = e.endCoordinates.height;
       setKeyboardHeight(kh);
-      // After state update reflows the layout (marginBottom on ScrollView),
-      // scroll to ensure the cursor is above the keyboard.
+      // After layout reflows, scroll to keep the cursor visible above the keyboard.
       setTimeout(() => {
         if (!scrollViewRef.current) return;
         const total = latestContent.current.length;
@@ -103,8 +108,12 @@ export default function EditorScreen({navigation, route}) {
         // Estimate cursor Y in document space using content height proportion.
         // Courier New is monospace so this is reasonably accurate.
         const cursorY   = 24 + (pos / total) * Math.max(0, contentH - 24); // 24 = editor paddingTop
-        // Visible scrollview height with keyboard (subtract header ~60, footer ~40, status bar)
-        const visibleH  = windowHeight - kh - topInset - 100;
+        // Adaptive visible height: accounts for adjustResize (window shrinks ~kh)
+        // vs adjustNothing (window static, keyboard overlays).
+        const currWH    = windowHeightRef.current;
+        const wShrink   = Math.max(0, baseWindowHeightRef.current - currWH);
+        const eSpacer   = Math.min(Math.max(0, kh - wShrink), Math.max(0, currWH - 160));
+        const visibleH  = currWH - eSpacer - topInset - 100;
         const scrollBot = scrollYRef.current + visibleH;
         // Only scroll if cursor is near or below the visible bottom
         if (cursorY > scrollBot - 40) {
@@ -115,9 +124,26 @@ export default function EditorScreen({navigation, route}) {
         }
       }, 80);
     });
-    const hide = Keyboard.addListener('keyboardDidHide', () => setKeyboardHeight(0));
+    const hide = Keyboard.addListener('keyboardDidHide', () => {
+      setKeyboardHeight(0);
+      // Capture full-screen window height once keyboard is fully dismissed.
+      // Delay slightly so Dimensions has settled after adjustResize expansion.
+      setTimeout(() => { baseWindowHeightRef.current = windowHeightRef.current; }, 50);
+    });
     return () => { show.remove(); hide.remove(); };
-  }, [windowHeight, topInset]);
+  }, [topInset]);  // windowHeight intentionally omitted — read via ref inside callbacks
+
+  // Adaptive spacer height that works for both adjustResize and adjustNothing:
+  //   adjustResize  → window already shrunken by ~kh, so windowShrink ≈ kh, spacerHeight ≈ 0
+  //   adjustNothing → window unchanged, windowShrink = 0, spacerHeight = kh
+  // Clamped to prevent the spacer consuming the full view during rapid rotations.
+  const windowShrink = keyboardHeight > 0
+    ? Math.max(0, baseWindowHeightRef.current - windowHeight)
+    : 0;
+  const spacerHeight = Math.min(
+    Math.max(0, keyboardHeight - windowShrink),
+    Math.max(0, windowHeight - 160),
+  );
 
   useEffect(() => { isDirtyRef.current = isDirty; }, [isDirty]);
   useEffect(() => { autosaveRef.current = autosave; }, [autosave]);
@@ -539,8 +565,8 @@ export default function EditorScreen({navigation, route}) {
         </Text>
         <Text style={styles.footerText}>{isDirty && !autosave ? 'unsaved' : 'plain text'}</Text>
       </View>
-      {/* Spacer that fills the keyboard area, pushing the footer into the visible zone */}
-      <View style={{height: keyboardHeight}} />
+      {/* Adaptive spacer: fills the keyboard overlay area (0 with adjustResize, kh with adjustNothing) */}
+      <View style={{height: spacerHeight}} />
 
       {/* ... Dropdown menu */}
       <Modal visible={menuVisible} transparent animationType="fade" onRequestClose={() => setMenuVisible(false)}>
