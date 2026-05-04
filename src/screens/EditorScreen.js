@@ -122,7 +122,11 @@ export default function EditorScreen({navigation, route}) {
         const currWH   = windowHeightRef.current;
         const visibleH = currWH - kh - bottomInsetRef.current - topInset - 60;
         if (visibleH <= 0) return;
-        const scrollBot = scrollYRef.current + visibleH;
+        // scrollYRef may be stale after rotation (ScrollView adjusts without firing onScroll).
+        // Clamp to the minimum scroll that would make the cursor visible at the bottom of
+        // the viewport — prevents a falsely-large scrollBot suppressing the scroll.
+        const safeScrollY = Math.min(scrollYRef.current, Math.max(0, cursorY - visibleH));
+        const scrollBot   = safeScrollY + visibleH;
         if (cursorY > scrollBot - 40) {
           scrollViewRef.current.scrollTo({
             y: Math.max(0, cursorY - visibleH + 80),
