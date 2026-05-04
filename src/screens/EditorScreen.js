@@ -24,7 +24,7 @@ import React, {useState, useEffect, useRef, useMemo} from 'react';
 import {
   View, Text, TextInput, StyleSheet,
   TouchableOpacity, TouchableWithoutFeedback,
-  Alert, Modal, ScrollView, KeyboardAvoidingView, Platform,
+  Alert, Modal, ScrollView, KeyboardAvoidingView, Platform, Keyboard,
 } from 'react-native';
 import RNFS from 'react-native-fs';
 import StorageManager from '../storage/StorageManager';
@@ -80,7 +80,14 @@ export default function EditorScreen({navigation, route}) {
 
   const t = useTheme();
   const {top: topInset, bottom: bottomInset} = useSafeAreaInsets();
-  const styles = useMemo(() => makeStyles(t, topInset, bottomInset), [t, topInset, bottomInset]);
+  const styles = useMemo(() => makeStyles(t, topInset), [t, topInset]);
+
+  const [keyboardShowing, setKeyboardShowing] = useState(false);
+  useEffect(() => {
+    const show = Keyboard.addListener('keyboardDidShow', () => setKeyboardShowing(true));
+    const hide = Keyboard.addListener('keyboardDidHide', () => setKeyboardShowing(false));
+    return () => { show.remove(); hide.remove(); };
+  }, []);
 
   useEffect(() => { isDirtyRef.current = isDirty; }, [isDirty]);
   useEffect(() => { autosaveRef.current = autosave; }, [autosave]);
@@ -492,8 +499,8 @@ export default function EditorScreen({navigation, route}) {
         <View style={{height: BOTTOM_SPACER}} />
       </ScrollView>
 
-      {/* Footer */}
-      <View style={styles.footer}>
+      {/* Footer — bottom inset applied only when keyboard is hidden */}
+      <View style={[styles.footer, {paddingBottom: 10 + (keyboardShowing ? 0 : bottomInset)}]}>
         <Text style={styles.footerText}>
           {wordCount} {wordCount === 1 ? 'word' : 'words'} · {charCount} {charCount === 1 ? 'char' : 'chars'}
         </Text>
@@ -598,7 +605,7 @@ export default function EditorScreen({navigation, route}) {
   );
 }
 
-function makeStyles(t, topInset = 0, bottomInset = 0) {
+function makeStyles(t, topInset = 0) {
   return StyleSheet.create({
     container:      {flex: 1, backgroundColor: t.bg},
     header:         {flexDirection: 'row', alignItems: 'center', paddingHorizontal: 20, paddingTop: Math.max(topInset, 16), paddingBottom: 14, borderBottomWidth: 1, borderBottomColor: t.border, gap: 10},
@@ -625,7 +632,7 @@ function makeStyles(t, topInset = 0, bottomInset = 0) {
       letterSpacing: 0.3,
       minHeight: '100%',
     },
-    footer:         {flexDirection: 'row', justifyContent: 'space-between', paddingHorizontal: 24, paddingTop: 10, paddingBottom: 10 + bottomInset, borderTopWidth: 1, borderTopColor: t.border},
+    footer:         {flexDirection: 'row', justifyContent: 'space-between', paddingHorizontal: 24, paddingTop: 10, borderTopWidth: 1, borderTopColor: t.border},
     footerText:     {color: t.textTiny, fontSize: 11, fontFamily: 'Courier New', letterSpacing: 1},
     menuOverlay:    {flex: 1, backgroundColor: 'transparent'},
     menuBox:        {position: 'absolute', top: 100, right: 16, backgroundColor: t.surfaceAlt, borderWidth: 1, borderColor: t.borderStrong, minWidth: 140, elevation: 8},
