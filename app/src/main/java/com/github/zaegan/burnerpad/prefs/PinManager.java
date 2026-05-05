@@ -17,6 +17,7 @@ import java.util.Arrays;
 public final class PinManager {
 
     public static final int    CURRENT_SCHEMA = 1;
+    public static final int    MIN_PIN_LENGTH = 5;
     public static final String NO_PIN         = "12345";
     private static final int   SALT_BYTES     = 16;
 

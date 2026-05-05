@@ -83,6 +83,7 @@ public class SettingsActivity extends AppCompatActivity {
     private Button   btnCreateBackup;
 
     // Restore
+    private EditText etRestorePassword;
     private TextView tvRestoreError;
     private TextView tvRestoreProgress;
     private Button   btnRestore;
@@ -200,6 +201,7 @@ public class SettingsActivity extends AppCompatActivity {
         btnCreateBackup  = findViewById(R.id.btnCreateBackup);
 
         // Restore
+        etRestorePassword = findViewById(R.id.etRestorePassword);
         tvRestoreError    = findViewById(R.id.tvRestoreError);
         tvRestoreProgress = findViewById(R.id.tvRestoreProgress);
         btnRestore        = findViewById(R.id.btnRestore);

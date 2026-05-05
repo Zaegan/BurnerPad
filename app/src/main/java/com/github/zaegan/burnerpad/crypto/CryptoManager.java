@@ -87,7 +87,7 @@ public final class CryptoManager {
         PBEKeySpec spec = new PBEKeySpec(
                 password.toCharArray(), salt, PBKDF2_ITERATIONS, PBKDF2_KEY_BITS);
         SecretKeyFactory factory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA256");
-        byte[] derived = factory.generateSecret(spec).encoded;
+        byte[] derived = factory.generateSecret(spec).getEncoded();
         spec.clearPassword();
         return derived;
     }

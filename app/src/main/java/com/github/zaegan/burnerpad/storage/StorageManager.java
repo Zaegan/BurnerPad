@@ -432,7 +432,7 @@ public final class StorageManager {
         for (File f : noteFiles) {
             if (f.isDirectory()) continue;
             String relPath = tempNotes.toURI().relativize(f.toURI()).getPath();
-            if (onProgress != null) onProgress("Restoring " + relPath + "…");
+            if (onProgress != null) onProgress.onProgress("Restoring " + relPath + "...");
 
             boolean collision = noteFile(relPath).exists();
             String action     = "replace";

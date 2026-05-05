@@ -543,7 +543,7 @@ public class EditorActivity extends AppCompatActivity {
                 .replace('\u2018', '\'').replace('\u2019', '\'')
                 .replace('\u201C', '"').replace('\u201D', '"')
                 .replace('\u2013', '-').replace('\u2014', '-')
-                .replace('\u2026', "...")
+                .replace("\u2026", "...")
                 .replace('\u00A0', ' ')
                 .replaceAll("<[^>]*>", "");
     }
