@@ -238,6 +238,7 @@ public class SettingsActivity extends AppCompatActivity {
 
         // Privacy policy in gate section
         TextView tvPrivacyGate = findViewById(R.id.tvPrivacyGate);
+        tvPrivacyGate.setPaintFlags(tvPrivacyGate.getPaintFlags() | android.graphics.Paint.UNDERLINE_TEXT_FLAG);
         tvPrivacyGate.setOnClickListener(v -> openPrivacyPolicy());
     }
 
@@ -666,6 +667,7 @@ public class SettingsActivity extends AppCompatActivity {
 
     private void setupPrivacy() {
         TextView tvPrivacyContent = findViewById(R.id.tvPrivacyContent);
+        tvPrivacyContent.setPaintFlags(tvPrivacyContent.getPaintFlags() | android.graphics.Paint.UNDERLINE_TEXT_FLAG);
         tvPrivacyContent.setOnClickListener(v -> openPrivacyPolicy());
     }
 
