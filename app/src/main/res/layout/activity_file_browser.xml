@@ -43,7 +43,7 @@
                 android:fontFamily="sans-serif"
                 android:letterSpacing="0.12"
                 android:textColor="?attr/textPrimary"
-                android:textSize="16sp" />
+                android:textSize="18sp" />
         </LinearLayout>
 
         <!-- Right: action buttons -->
@@ -63,7 +63,7 @@
                 android:paddingHorizontal="2dp"
                 android:text="+ note"
                 android:textColor="?attr/textFaint"
-                android:textSize="11sp"
+                android:textSize="13sp"
                 android:layout_marginEnd="12dp" />
 
             <TextView
@@ -76,7 +76,7 @@
                 android:paddingHorizontal="2dp"
                 android:text="+ folder"
                 android:textColor="?attr/textFaint"
-                android:textSize="11sp"
+                android:textSize="13sp"
                 android:layout_marginEnd="12dp" />
 
             <TextView
@@ -89,7 +89,7 @@
                 android:paddingHorizontal="2dp"
                 android:text="+ import"
                 android:textColor="?attr/textFaint"
-                android:textSize="11sp"
+                android:textSize="13sp"
                 android:layout_marginEnd="12dp" />
 
             <TextView
@@ -101,7 +101,7 @@
                 android:paddingHorizontal="2dp"
                 android:text="⚙"
                 android:textColor="?attr/textFaint"
-                android:textSize="14sp" />
+                android:textSize="16sp" />
         </LinearLayout>
     </LinearLayout>
 

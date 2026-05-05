@@ -10,6 +10,7 @@
     <attr name="textPrimary"       format="color" />
     <attr name="textFaint"         format="color" />
     <attr name="textMicro"         format="color" />
+    <attr name="textHint"          format="color" />
     <attr name="errorColor"        format="color" />
     <attr name="errorMutedColor"   format="color" />
     <attr name="highlightColor"    format="color" />

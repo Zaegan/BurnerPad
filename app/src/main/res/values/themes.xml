@@ -24,6 +24,7 @@
         <item name="textPrimary">@color/text_primary</item>
         <item name="textFaint">@color/text_faint</item>
         <item name="textMicro">@color/text_micro</item>
+        <item name="textHint">@color/hint_text</item>
         <item name="errorColor">@color/error</item>
         <item name="errorMutedColor">@color/error_muted</item>
         <item name="highlightColor">@color/highlight</item>

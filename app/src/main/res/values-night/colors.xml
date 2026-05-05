@@ -11,6 +11,7 @@
     <color name="text_primary"   >#cccccc</color>
     <color name="text_faint"     >#cccccc</color>
     <color name="text_micro"     >#cccccc</color>
+    <color name="hint_text"      >#444444</color>
     <color name="error"          >#c0392b</color>
     <color name="error_muted"    >#7a3a3a</color>
     <color name="highlight"      >#1a1a1a</color>

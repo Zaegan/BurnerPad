@@ -115,7 +115,7 @@
                 android:paddingBottom="8dp"
                 android:scrollHorizontally="false"
                 android:textColor="?attr/textPrimary"
-                android:textColorHint="?attr/textMicro"
+                android:textColorHint="?attr/textHint"
                 android:textSize="15sp" />
 
             <!-- Allows last line to scroll near top -->
