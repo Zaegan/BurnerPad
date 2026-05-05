@@ -196,10 +196,11 @@ public final class CryptoManager {
 
     // ── HMAC-SHA256 ──────────────────────────────────────────────────────────
 
-    private static String hmac256(String data, byte[] key) throws Exception {
+    private static String hmac256(String base64Data, byte[] key) throws Exception {
+        byte[] data = Base64.decode(base64Data, Base64.NO_WRAP);
         Mac mac = Mac.getInstance("HmacSHA256");
         mac.init(new SecretKeySpec(key, "HmacSHA256"));
-        return toHex(mac.doFinal(data.getBytes("UTF-8")));
+        return toHex(mac.doFinal(data));
     }
 
     // ── Hex utilities ────────────────────────────────────────────────────────
