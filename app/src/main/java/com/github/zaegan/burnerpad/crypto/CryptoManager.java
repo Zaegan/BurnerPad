@@ -117,8 +117,11 @@ public final class CryptoManager {
         String ciphertext = obj.getString("ciphertext");
         String hmac       = obj.getString("hmac");
         String expectedHmac = hmac256(ciphertext, key);
-        if (!expectedHmac.equals(hmac))
-            throw new Exception("Authentication failed. File may be corrupted.");
+        if (!expectedHmac.equals(hmac)) {
+            // Fallback: pre-fix Java build computed HMAC over UTF-8 bytes of the base64 string
+            if (!hmac256Utf8(ciphertext, key).equals(hmac))
+                throw new Exception("Authentication failed. File may be corrupted.");
+        }
         Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
         cipher.init(Cipher.DECRYPT_MODE,
                 new SecretKeySpec(key, "AES"), new IvParameterSpec(hexToBytes(iv)));
@@ -182,8 +185,11 @@ public final class CryptoManager {
         byte[] key = deriveKey(password, saltHex);
         try {
             String expectedHmac = hmac256(ciphertext, key);
-            if (!expectedHmac.equals(hmac))
-                throw new Exception("Incorrect password or corrupted archive.");
+            if (!expectedHmac.equals(hmac)) {
+                // Fallback: pre-fix Java build computed HMAC over UTF-8 bytes of the base64 string
+                if (!hmac256Utf8(ciphertext, key).equals(hmac))
+                    throw new Exception("Incorrect password or corrupted archive.");
+            }
             Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
             cipher.init(Cipher.DECRYPT_MODE,
                     new SecretKeySpec(key, "AES"), new IvParameterSpec(hexToBytes(ivHex)));
@@ -196,11 +202,19 @@ public final class CryptoManager {
 
     // ── HMAC-SHA256 ──────────────────────────────────────────────────────────
 
+    /** Correct HMAC: over raw bytes of decoded base64 ciphertext (matches original RN CryptoModule). */
     private static String hmac256(String base64Data, byte[] key) throws Exception {
         byte[] data = Base64.decode(base64Data, Base64.NO_WRAP);
         Mac mac = Mac.getInstance("HmacSHA256");
         mac.init(new SecretKeySpec(key, "HmacSHA256"));
         return toHex(mac.doFinal(data));
+    }
+
+    /** Legacy HMAC: over UTF-8 bytes of the base64 string itself (first Java build only). */
+    private static String hmac256Utf8(String data, byte[] key) throws Exception {
+        Mac mac = Mac.getInstance("HmacSHA256");
+        mac.init(new SecretKeySpec(key, "HmacSHA256"));
+        return toHex(mac.doFinal(data.getBytes("UTF-8")));
     }
 
     // ── Hex utilities ────────────────────────────────────────────────────────

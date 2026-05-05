@@ -354,10 +354,12 @@ public final class StorageManager {
             writeText(outFile, plain);
         }
 
-        // ZIP the temp dir
+        // ZIP the temp dir contents (not the folder itself, to match RN zip behavior)
         File zipFile = new File(tempDir.getParent(), "burnerpad_export.zip");
         if (zipFile.exists()) zipFile.delete();
-        new ZipFile(zipFile).addFolder(tempDir, new ZipParameters());
+        ZipParameters zipParams = new ZipParameters();
+        zipParams.setIncludeRootFolder(false);
+        new ZipFile(zipFile).addFolder(tempDir, zipParams);
 
         // Read zip as base64, encrypt with password
         byte[] zipBytes = readBytes(zipFile);
