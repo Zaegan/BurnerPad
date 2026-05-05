@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="?attr/bgColor"
+    android:orientation="vertical"
+    android:paddingHorizontal="40dp"
+    android:paddingTop="80dp"
+    android:paddingBottom="56dp">
+
+    <!-- Progress dots -->
+    <LinearLayout
+        android:id="@+id/dotsContainer"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal" />
+
+    <!-- Slide content (centered vertically) -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:gravity="center_vertical"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/tvTitle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="28dp"
+            android:fontFamily="monospace"
+            android:letterSpacing="0.15"
+            android:textColor="?attr/textPrimary"
+            android:textSize="16sp" />
+
+        <TextView
+            android:id="@+id/tvBody"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:fontFamily="monospace"
+            android:lineSpacingMultiplier="1.6"
+            android:textColor="?attr/textPrimary"
+            android:textSize="17sp" />
+    </LinearLayout>
+
+    <!-- Actions row -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="bottom"
+        android:orientation="horizontal">
+
+        <!-- Left: skip + decline -->
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/tvSkip"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="monospace"
+                android:letterSpacing="0.08"
+                android:paddingVertical="4dp"
+                android:text="@string/skip"
+                android:textColor="?attr/textFaint"
+                android:textSize="13sp" />
+
+            <TextView
+                android:id="@+id/tvDeclineAll"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:fontFamily="monospace"
+                android:letterSpacing="0.05"
+                android:paddingVertical="4dp"
+                android:text="@string/decline_all_tutorials"
+                android:textColor="?attr/textMicro"
+                android:textSize="11sp" />
+        </LinearLayout>
+
+        <!-- Right: next/start -->
+        <TextView
+            android:id="@+id/btnNext"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="monospace"
+            android:letterSpacing="0.08"
+            android:paddingStart="8dp"
+            android:paddingVertical="8dp"
+            android:text="next →"
+            android:textColor="?attr/textPrimary"
+            android:textSize="14sp" />
+    </LinearLayout>
+
+</LinearLayout>

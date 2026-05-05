@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">BurnerPad</string>
+    <string name="tagline">encrypted. plain. private.</string>
+    <string name="unlock">Unlock</string>
+    <string name="cancel">cancel</string>
+    <string name="create">create</string>
+    <string name="rename">rename</string>
+    <string name="save">save</string>
+    <string name="delete">delete</string>
+    <string name="import_str">import</string>
+    <string name="export">export</string>
+    <string name="next">next →</string>
+    <string name="start">start →</string>
+    <string name="skip">skip</string>
+    <string name="decline_all_tutorials">decline all tutorials</string>
+    <string name="privacy_policy">privacy policy</string>
+    <string name="no_notes_yet">no notes yet</string>
+    <string name="back">↑ back</string>
+    <string name="play_store_id">com.github.zaegan.burnerpad</string>
+    <string name="privacy_policy_url">https://zaegan.github.io/BurnerPad/privacy.html</string>
+</resources>

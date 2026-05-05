@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <attr name="bgColor"           format="color" />
+    <attr name="surfaceColor"      format="color" />
+    <attr name="surfaceAltColor"   format="color" />
+    <attr name="borderColor"       format="color" />
+    <attr name="borderMidColor"    format="color" />
+    <attr name="borderStrongColor" format="color" />
+    <attr name="borderFocusColor"  format="color" />
+    <attr name="textPrimary"       format="color" />
+    <attr name="textFaint"         format="color" />
+    <attr name="textMicro"         format="color" />
+    <attr name="errorColor"        format="color" />
+    <attr name="errorMutedColor"   format="color" />
+    <attr name="highlightColor"    format="color" />
+    <attr name="overlayColor"      format="color" />
+</resources>

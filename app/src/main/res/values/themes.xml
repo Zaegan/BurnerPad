@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <style name="Theme.BurnerPad" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+        <item name="colorPrimary">@color/border_focus</item>
+        <item name="colorPrimaryVariant">@color/border_strong</item>
+        <item name="colorOnPrimary">@color/text_primary</item>
+        <item name="android:colorBackground">@color/bg</item>
+        <item name="android:textColor">@color/text_primary</item>
+        <item name="android:fontFamily">monospace</item>
+
+        <!-- Custom attrs -->
+        <item name="bgColor">@color/bg</item>
+        <item name="surfaceColor">@color/surface</item>
+        <item name="surfaceAltColor">@color/surface_alt</item>
+        <item name="borderColor">@color/border</item>
+        <item name="borderMidColor">@color/border_mid</item>
+        <item name="borderStrongColor">@color/border_strong</item>
+        <item name="borderFocusColor">@color/border_focus</item>
+        <item name="textPrimary">@color/text_primary</item>
+        <item name="textFaint">@color/text_faint</item>
+        <item name="textMicro">@color/text_micro</item>
+        <item name="errorColor">@color/error</item>
+        <item name="errorMutedColor">@color/error_muted</item>
+        <item name="highlightColor">@color/highlight</item>
+        <item name="overlayColor">@color/overlay</item>
+    </style>
+
+    <!-- Transparent splash while MainActivity routes to correct screen -->
+    <style name="Theme.BurnerPad.Splash">
+        <item name="android:windowBackground">@color/bg</item>
+        <item name="android:windowNoTitle">true</item>
+    </style>
+
+    <!-- Dialog style -->
+    <style name="Theme.BurnerPad.Dialog" parent="Theme.MaterialComponents.DayNight.Dialog">
+        <item name="android:background">@color/surface</item>
+    </style>
+
+    <!-- Edit text underline style -->
+    <style name="BurnerPad.EditText" parent="Widget.MaterialComponents.TextInputEditText">
+        <item name="android:background">@android:color/transparent</item>
+        <item name="android:textColor">@color/text_primary</item>
+        <item name="android:textCursorDrawable">@null</item>
+        <item name="android:fontFamily">monospace</item>
+    </style>
+
+</resources>

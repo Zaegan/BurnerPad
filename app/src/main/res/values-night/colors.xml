@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Dark theme colors -->
+<resources>
+    <color name="bg"             >#0d0d0d</color>
+    <color name="surface"        >#111111</color>
+    <color name="surface_alt"    >#161616</color>
+    <color name="border"         >#1a1a1a</color>
+    <color name="border_mid"     >#1e1e1e</color>
+    <color name="border_strong"  >#2a2a2a</color>
+    <color name="border_focus"   >#333333</color>
+    <color name="text_primary"   >#cccccc</color>
+    <color name="text_faint"     >#888888</color>
+    <color name="text_micro"     >#444444</color>
+    <color name="error"          >#c0392b</color>
+    <color name="error_muted"    >#7a3a3a</color>
+    <color name="highlight"      >#1a1a1a</color>
+    <color name="overlay"        >#d9000000</color>
+</resources>

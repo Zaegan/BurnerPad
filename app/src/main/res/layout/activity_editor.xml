@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="?attr/bgColor"
+    android:orientation="vertical">
+
+    <!-- Header -->
+    <LinearLayout
+        android:id="@+id/header"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingHorizontal="20dp"
+        android:paddingTop="16dp"
+        android:paddingBottom="14dp">
+
+        <TextView
+            android:id="@+id/btnUp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="monospace"
+            android:paddingEnd="4dp"
+            android:text="↑"
+            android:textColor="?attr/textPrimary"
+            android:textSize="20sp" />
+
+        <TextView
+            android:id="@+id/tvNoteName"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="10dp"
+            android:layout_weight="1"
+            android:ellipsize="end"
+            android:fontFamily="monospace"
+            android:letterSpacing="0.08"
+            android:maxLines="1"
+            android:textColor="?attr/textFaint"
+            android:textSize="13sp" />
+
+        <!-- Shown when autosave ON -->
+        <TextView
+            android:id="@+id/tvAutosavedLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="monospace"
+            android:letterSpacing="0.05"
+            android:text="autosaved"
+            android:textColor="?attr/textMicro"
+            android:textSize="11sp"
+            android:visibility="gone" />
+
+        <!-- Shown when autosave OFF -->
+        <TextView
+            android:id="@+id/btnSave"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="monospace"
+            android:letterSpacing="0.05"
+            android:paddingHorizontal="2dp"
+            android:paddingVertical="4dp"
+            android:text="save"
+            android:textColor="?attr/textPrimary"
+            android:textSize="12sp"
+            android:layout_marginStart="10dp" />
+
+        <TextView
+            android:id="@+id/btnMenu"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="monospace"
+            android:letterSpacing="0.08"
+            android:paddingHorizontal="4dp"
+            android:paddingVertical="4dp"
+            android:text="···"
+            android:textColor="?attr/textPrimary"
+            android:textSize="16sp"
+            android:layout_marginStart="10dp" />
+    </LinearLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="?attr/borderColor" />
+
+    <!-- Editor (full-height EditText inside ScrollView) -->
+    <ScrollView
+        android:id="@+id/scrollView"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:fillViewport="true">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <EditText
+                android:id="@+id/etEditor"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@null"
+                android:fontFamily="monospace"
+                android:gravity="top|start"
+                android:hint="start typing…"
+                android:inputType="textMultiLine|textCapSentences"
+                android:letterSpacing="0.02"
+                android:lineSpacingExtra="4dp"
+                android:minHeight="500dp"
+                android:paddingHorizontal="24dp"
+                android:paddingTop="24dp"
+                android:paddingBottom="8dp"
+                android:scrollHorizontally="false"
+                android:textColor="?attr/textPrimary"
+                android:textColorHint="?attr/textMicro"
+                android:textSize="15sp" />
+
+            <!-- Allows last line to scroll near top -->
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="500dp" />
+        </LinearLayout>
+    </ScrollView>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="?attr/borderColor" />
+
+    <!-- Footer -->
+    <LinearLayout
+        android:id="@+id/footer"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingHorizontal="24dp"
+        android:paddingTop="10dp"
+        android:paddingBottom="10dp">
+
+        <TextView
+            android:id="@+id/tvWordCount"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:fontFamily="monospace"
+            android:letterSpacing="0.05"
+            android:textColor="?attr/textMicro"
+            android:textSize="11sp" />
+
+        <TextView
+            android:id="@+id/tvStatus"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="monospace"
+            android:letterSpacing="0.05"
+            android:textColor="?attr/textMicro"
+            android:textSize="11sp" />
+    </LinearLayout>
+
+</LinearLayout>
