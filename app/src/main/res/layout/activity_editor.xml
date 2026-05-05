@@ -107,6 +107,7 @@
                 android:gravity="top|start"
                 android:hint="start typing…"
                 android:inputType="textMultiLine|textCapSentences"
+                android:imeOptions="flagNoExtractUi"
                 android:letterSpacing="0.02"
                 android:lineSpacingExtra="4dp"
                 android:minHeight="500dp"
