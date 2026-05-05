@@ -9,8 +9,8 @@
     <color name="border_strong"  >#cccccc</color>
     <color name="border_focus"   >#aaaaaa</color>
     <color name="text_primary"   >#000000</color>
-    <color name="text_faint"     >#555555</color>
-    <color name="text_micro"     >#888888</color>
+    <color name="text_faint"     >#000000</color>
+    <color name="text_micro"     >#000000</color>
     <color name="error"          >#c0392b</color>
     <color name="error_muted"    >#b03030</color>
     <color name="highlight"      >#e0e0e0</color>

@@ -246,7 +246,6 @@ public class FileBrowserActivity extends AppCompatActivity {
         EditText et = new EditText(this);
         et.setText(suggestedName);
         et.setSelectAllOnFocus(true);
-        et.setTypeface(android.graphics.Typeface.MONOSPACE);
         et.setPadding(dp(8), dp(8), dp(8), dp(8));
 
         new AlertDialog.Builder(this)
@@ -294,7 +293,6 @@ public class FileBrowserActivity extends AppCompatActivity {
     private void showRenameDialog(StorageManager.FileEntry item) {
         EditText et = new EditText(this);
         et.setText(item.name);
-        et.setTypeface(android.graphics.Typeface.MONOSPACE);
         et.setPadding(dp(8), dp(8), dp(8), dp(8));
 
         new AlertDialog.Builder(this)
@@ -358,7 +356,6 @@ public class FileBrowserActivity extends AppCompatActivity {
     private void showCreateDialog(boolean isFolder) {
         EditText et = new EditText(this);
         et.setHint(isFolder ? "folder name" : "filename (e.g. todo.txt)");
-        et.setTypeface(android.graphics.Typeface.MONOSPACE);
         et.setPadding(dp(8), dp(8), dp(8), dp(8));
         et.setInputType(android.text.InputType.TYPE_CLASS_TEXT);
 

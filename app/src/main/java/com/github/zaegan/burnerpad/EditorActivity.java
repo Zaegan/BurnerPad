@@ -377,19 +377,15 @@ public class EditorActivity extends AppCompatActivity {
         EditText etName = new EditText(this);
         etName.setHint("filename");
         etName.setText(noteName);
-        etName.setTypeface(android.graphics.Typeface.MONOSPACE);
         TextView lblName = new TextView(this);
         lblName.setText("Filename");
-        lblName.setTypeface(android.graphics.Typeface.MONOSPACE);
         lblName.setTextSize(11);
 
         EditText etDir = new EditText(this);
         etDir.setHint("leave empty for root");
         etDir.setText(currentDir);
-        etDir.setTypeface(android.graphics.Typeface.MONOSPACE);
         TextView lblDir = new TextView(this);
         lblDir.setText("Directory");
-        lblDir.setTypeface(android.graphics.Typeface.MONOSPACE);
         lblDir.setTextSize(11);
 
         ll.addView(lblName);
@@ -476,7 +472,6 @@ public class EditorActivity extends AppCompatActivity {
     private void showRenameDialog() {
         EditText et = new EditText(this);
         et.setText(noteName);
-        et.setTypeface(android.graphics.Typeface.MONOSPACE);
         et.setPadding(dp(8), dp(8), dp(8), dp(8));
 
         new AlertDialog.Builder(this)

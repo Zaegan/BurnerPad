@@ -392,26 +392,55 @@ public final class StorageManager {
         try {
             encryptedJson = readText(archiveFile);
         } catch (Exception e) {
-            throw new Exception("Could not read archive file.");
+            throw new Exception("Could not read archive file: " + e.getMessage());
         }
 
-        String zipBase64;
-        try {
-            zipBase64 = CryptoManager.decryptArchive(encryptedJson, password);
-        } catch (Exception e) {
-            throw new Exception("Incorrect password or corrupted archive.");
-        }
+        // Decrypt — propagate the specific error message from CryptoManager
+        String zipBase64 = CryptoManager.decryptArchive(encryptedJson, password);
 
         cleanTemp();
         ensureDir(tempDir);
 
         File zipFile = new File(tempDir.getParent(), "burnerpad_restore.zip");
-        byte[] zipBytes = Base64.decode(zipBase64, Base64.NO_WRAP);
+        byte[] zipBytes;
+        try {
+            zipBytes = Base64.decode(zipBase64, Base64.DEFAULT);
+        } catch (Exception e) {
+            throw new Exception("Decrypted archive content is not valid base64: " + e.getMessage());
+        }
         writeBytes(zipFile, zipBytes);
-        new ZipFile(zipFile).extractAll(tempDir.getAbsolutePath());
+        try {
+            new ZipFile(zipFile).extractAll(tempDir.getAbsolutePath());
+        } catch (Exception e) {
+            throw new Exception("Failed to unzip archive: " + e.getMessage());
+        }
 
-        File schemaFile = new File(tempDir, "schema.json");
-        if (!schemaFile.exists()) throw new Exception("Invalid archive: missing schema.json.");
+        // Find the archive root — RN zip may include the source folder as a top-level entry,
+        // producing tempDir/burnerpad_temp/... instead of tempDir/...
+        File archiveRoot = tempDir;
+        File schemaFile  = new File(tempDir, "schema.json");
+        if (!schemaFile.exists()) {
+            File[] subdirs = tempDir.listFiles(File::isDirectory);
+            if (subdirs != null) {
+                for (File sub : subdirs) {
+                    File candidate = new File(sub, "schema.json");
+                    if (candidate.exists()) {
+                        archiveRoot = sub;
+                        schemaFile  = candidate;
+                        break;
+                    }
+                }
+            }
+        }
+        if (!schemaFile.exists()) {
+            StringBuilder contents = new StringBuilder();
+            File[] top = tempDir.listFiles();
+            if (top != null) for (File f : top)
+                contents.append(f.getName()).append(f.isDirectory() ? "/" : "").append(" ");
+            throw new Exception("Invalid archive: schema.json not found. "
+                    + "Extracted contents: [" + contents.toString().trim() + "]");
+        }
+
         JSONObject schema = new JSONObject(readText(schemaFile));
         int schemaVersion = schema.optInt("schema", 1);
         if (schemaVersion > CURRENT_SCHEMA)
@@ -426,8 +455,8 @@ public final class StorageManager {
         }
 
         // Restore note files
-        File tempNotes    = new File(tempDir, "notes");
-        File tempRecovery = new File(tempDir, "recovery");
+        File tempNotes    = new File(archiveRoot, "notes");
+        File tempRecovery = new File(archiveRoot, "recovery");
         List<File> noteFiles = collectFiles(tempNotes);
         String globalResolution = null;
 

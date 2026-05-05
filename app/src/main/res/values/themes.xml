@@ -7,7 +7,7 @@
         <item name="colorOnPrimary">@color/text_primary</item>
         <item name="android:colorBackground">@color/bg</item>
         <item name="android:textColor">@color/text_primary</item>
-        <item name="android:fontFamily">monospace</item>
+        <item name="android:fontFamily">sans-serif</item>
         <item name="android:statusBarColor">@color/bg</item>
         <item name="android:navigationBarColor">@color/bg</item>
         <item name="android:windowLightStatusBar">@bool/is_light_mode</item>

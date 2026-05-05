@@ -54,7 +54,10 @@ public class BurnerPadApp extends Application implements Application.ActivityLif
     @Override
     public void onActivityStopped(Activity a) {
         startedCount--;
-        if (startedCount <= 0 && wasInForeground && !suppressLock) {
+        // isChangingConfigurations() is true during rotation or recreate() — the activity is
+        // being torn down and immediately rebuilt in the same process. Do not treat this as
+        // the user leaving the app; the session key must survive the recreation.
+        if (startedCount <= 0 && wasInForeground && !suppressLock && !a.isChangingConfigurations()) {
             startedCount = 0;
             // App has gone fully to background — clear session key so next foreground entry requires PIN
             CryptoManager.clearSessionKey();

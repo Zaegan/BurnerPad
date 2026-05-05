@@ -177,24 +177,77 @@ public final class CryptoManager {
     }
 
     public static String decryptArchive(String encryptedJson, String password) throws Exception {
-        JSONObject obj    = new JSONObject(encryptedJson);
-        String saltHex    = obj.getString("salt");
-        String ivHex      = obj.getString("iv");
-        String ciphertext = obj.getString("ciphertext");
-        String hmac       = obj.getString("hmac");
-        byte[] key = deriveKey(password, saltHex);
+        // ── 1. Parse JSON ────────────────────────────────────────────────────
+        JSONObject obj;
         try {
-            String expectedHmac = hmac256(ciphertext, key);
-            if (!expectedHmac.equals(hmac)) {
-                // Fallback: pre-fix Java build computed HMAC over UTF-8 bytes of the base64 string
-                if (!hmac256Utf8(ciphertext, key).equals(hmac))
-                    throw new Exception("Incorrect password or corrupted archive.");
+            obj = new JSONObject(encryptedJson);
+        } catch (Exception e) {
+            throw new Exception("Archive JSON is malformed: " + e.getMessage());
+        }
+        String saltHex, ivHex, ciphertext, hmac;
+        try {
+            saltHex    = obj.getString("salt");
+            ivHex      = obj.getString("iv");
+            ciphertext = obj.getString("ciphertext");
+            hmac       = obj.getString("hmac");
+        } catch (Exception e) {
+            throw new Exception("Archive is missing required fields (salt/iv/ciphertext/hmac): " + e.getMessage());
+        }
+
+        // ── 2. Derive key ────────────────────────────────────────────────────
+        byte[] key;
+        try {
+            key = deriveKey(password, saltHex);
+        } catch (Exception e) {
+            throw new Exception("Key derivation failed: " + e.getMessage());
+        }
+
+        try {
+            // ── 3. Verify HMAC ───────────────────────────────────────────────
+            // Attempt A: HMAC over raw bytes of decoded base64 (correct; matches RN CryptoModule)
+            String hmacA = hmac256(ciphertext, key);
+            boolean hmacAok = hmacA.equals(hmac);
+
+            // Attempt B: HMAC over UTF-8 bytes of base64 string (pre-fix Java build only)
+            boolean hmacBok = false;
+            if (!hmacAok) {
+                hmacBok = hmac256Utf8(ciphertext, key).equals(hmac);
             }
-            Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
-            cipher.init(Cipher.DECRYPT_MODE,
-                    new SecretKeySpec(key, "AES"), new IvParameterSpec(hexToBytes(ivHex)));
-            byte[] decrypted = cipher.doFinal(Base64.decode(ciphertext, Base64.NO_WRAP));
-            return new String(decrypted, "UTF-8");
+
+            if (!hmacAok && !hmacBok) {
+                throw new Exception(
+                    "Archive HMAC mismatch — wrong password, or archive was created by an"
+                    + " incompatible version. (computed=" + hmacA.substring(0, 8)
+                    + "…, stored=" + (hmac.length() >= 8 ? hmac.substring(0, 8) : hmac) + "…)");
+            }
+
+            // ── 4. Decrypt ───────────────────────────────────────────────────
+            byte[] ivBytes;
+            try {
+                ivBytes = hexToBytes(ivHex);
+            } catch (Exception e) {
+                throw new Exception("Archive IV is malformed (expected 32 hex chars, got \""
+                        + ivHex + "\"): " + e.getMessage());
+            }
+
+            byte[] ciphertextBytes;
+            try {
+                ciphertextBytes = Base64.decode(ciphertext, Base64.DEFAULT);
+            } catch (Exception e) {
+                throw new Exception("Archive ciphertext is not valid base64: " + e.getMessage());
+            }
+
+            try {
+                Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
+                cipher.init(Cipher.DECRYPT_MODE,
+                        new SecretKeySpec(key, "AES"), new IvParameterSpec(ivBytes));
+                byte[] decrypted = cipher.doFinal(ciphertextBytes);
+                return new String(decrypted, "UTF-8");
+            } catch (Exception e) {
+                throw new Exception("Archive cipher decryption failed (HMAC passed via "
+                        + (hmacAok ? "method A" : "method B")
+                        + " but cipher threw): " + e.getMessage());
+            }
         } finally {
             Arrays.fill(key, (byte) 0);
         }
