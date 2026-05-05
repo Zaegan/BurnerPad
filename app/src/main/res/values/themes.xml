@@ -37,12 +37,4 @@
         <item name="android:background">@color/surface</item>
     </style>
 
-    <!-- Edit text underline style -->
-    <style name="BurnerPad.EditText" parent="Widget.MaterialComponents.TextInputEditText">
-        <item name="android:background">@android:color/transparent</item>
-        <item name="android:textColor">@color/text_primary</item>
-        <item name="android:textCursorDrawable">@null</item>
-        <item name="android:fontFamily">monospace</item>
-    </style>
-
 </resources>
