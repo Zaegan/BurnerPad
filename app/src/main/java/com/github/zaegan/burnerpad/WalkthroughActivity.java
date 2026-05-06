@@ -20,10 +20,7 @@ import com.github.zaegan.burnerpad.tutorial.TutorialManager;
 public class WalkthroughActivity extends AppCompatActivity {
 
     private static final String[][] SLIDES = {
-        {"welcome",       "BurnerPad keeps your notes encrypted on this device.\nNo accounts. No sync. No one else can read them."},
-        {"how it works",  "Your PIN encrypts a key that locks every note.\nWithout your PIN, the data is unreadable — even to us."},
         {"duress PIN",    "In Settings you can set a duress PIN.\nEntering it silently wipes everything and opens a blank app. Only set one if you need it."},
-        {"you're ready",  "That's all there is to know.\nTap 'start' to open your notes."},
     };
 
     private int      currentIndex = 0;

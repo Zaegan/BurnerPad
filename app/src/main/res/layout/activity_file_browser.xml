@@ -138,7 +138,6 @@
         android:id="@+id/tutorialOverlay"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:paddingHorizontal="24dp"
         android:gravity="center"
         android:visibility="gone">
 
@@ -146,6 +145,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
+            android:layout_marginHorizontal="32dp"
             android:background="?attr/surfaceColor"
             android:orientation="vertical"
             android:paddingHorizontal="32dp"
