@@ -2,6 +2,8 @@ package com.github.zaegan.burnerpad;
 
 import android.app.AlertDialog;
 import android.content.Intent;
+import android.content.res.TypedArray;
+import android.graphics.drawable.GradientDrawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
@@ -49,7 +51,7 @@ public class FileBrowserActivity extends AppCompatActivity {
     private String       currentPath;
     private RecyclerView recyclerView;
     private FileAdapter  adapter;
-    private TextView     tvEmpty, tvTitle, btnUp;
+    private TextView     tvEmpty, tvTitle, btnUp, btnSettings;
     private FrameLayout  tutorialOverlay;
 
     private List<StorageManager.FileEntry> items = new ArrayList<>();
@@ -67,6 +69,7 @@ public class FileBrowserActivity extends AppCompatActivity {
         tvEmpty        = findViewById(R.id.tvEmpty);
         recyclerView   = findViewById(R.id.recyclerView);
         tutorialOverlay= findViewById(R.id.tutorialOverlay);
+        btnSettings    = findViewById(R.id.btnSettings);
 
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
@@ -95,6 +98,7 @@ public class FileBrowserActivity extends AppCompatActivity {
         findViewById(R.id.tvTutorialDeclineAll).setOnClickListener(v -> {
             TutorialManager.declineAll();
             tutorialOverlay.setVisibility(View.GONE);
+            unhighlightSettingsButton();
         });
     }
 
@@ -112,6 +116,7 @@ public class FileBrowserActivity extends AppCompatActivity {
         // Show tutorial once at root
         if (currentPath.isEmpty() && TutorialManager.shouldShow(TutorialManager.SETTINGS_INTRO)) {
             tutorialOverlay.setVisibility(View.VISIBLE);
+            highlightSettingsButton();
         }
     }
 
@@ -410,6 +415,22 @@ public class FileBrowserActivity extends AppCompatActivity {
     private void dismissTutorial() {
         TutorialManager.markDone(TutorialManager.SETTINGS_INTRO);
         tutorialOverlay.setVisibility(View.GONE);
+        unhighlightSettingsButton();
+    }
+
+    private void highlightSettingsButton() {
+        TypedArray ta = obtainStyledAttributes(new int[]{R.attr.textPrimary});
+        int color = ta.getColor(0, 0xFFFFFFFF);
+        ta.recycle();
+        GradientDrawable border = new GradientDrawable();
+        border.setStroke(1, color);
+        btnSettings.setBackground(border);
+        btnSettings.setPadding(dp(8), dp(4), dp(8), dp(4));
+    }
+
+    private void unhighlightSettingsButton() {
+        btnSettings.setBackground(null);
+        btnSettings.setPadding(dp(2), dp(4), dp(2), dp(4));
     }
 
     // ── Helpers ───────────────────────────────────────────────────────────────
