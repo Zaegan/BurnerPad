@@ -4,11 +4,16 @@
     android:layout_height="match_parent"
     android:background="?attr/bgColor"
     android:fitsSystemWindows="true"
-    android:orientation="vertical"
-    android:paddingLeft="40dp"
-    android:paddingRight="40dp"
-    android:paddingTop="40dp"
-    android:paddingBottom="32dp">
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:paddingLeft="40dp"
+        android:paddingRight="40dp"
+        android:paddingTop="40dp"
+        android:paddingBottom="32dp">
 
     <!-- Progress dots -->
     <LinearLayout
@@ -95,6 +100,8 @@
             android:text="next →"
             android:textColor="?attr/textPrimary"
             android:textSize="14sp" />
+    </LinearLayout>
+
     </LinearLayout>
 
 </LinearLayout>
