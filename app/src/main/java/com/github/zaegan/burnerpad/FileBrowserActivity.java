@@ -428,11 +428,13 @@ public class FileBrowserActivity extends AppCompatActivity {
         border.setStroke(dp(10), color);
         border.setColor(fill);
         btnSettings.setBackground(border);
-        btnSettings.setPadding(dp(8), dp(4), dp(8), dp(4));
+        btnSettings.setTextSize(android.util.TypedValue.COMPLEX_UNIT_SP, 32);
+        btnSettings.setPadding(dp(12), dp(8), dp(12), dp(8));
     }
 
     private void unhighlightSettingsButton() {
         btnSettings.setBackground(null);
+        btnSettings.setTextSize(android.util.TypedValue.COMPLEX_UNIT_SP, 16);
         btnSettings.setPadding(dp(2), dp(4), dp(2), dp(4));
     }
 
