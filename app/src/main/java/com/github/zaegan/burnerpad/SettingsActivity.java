@@ -40,6 +40,7 @@ import java.util.concurrent.BlockingQueue;
  * Sections (all in settingsContent, hidden until gate passed):
  *  - Theme selector (dark / light / system)
  *  - Autosave toggle
+ *  - Status bar toggle
  *  - Change PIN (re-encrypts all notes)
  *  - Backup (creates encrypted archive → Downloads)
  *  - Restore (pick archive via SAF)
@@ -67,6 +68,7 @@ public class SettingsActivity extends AppCompatActivity {
 
     // Autosave
     private SwitchCompat switchAutosave;
+    private SwitchCompat switchStatusBar;
 
     // Change PIN
     private EditText etCurrentPin;
@@ -117,6 +119,7 @@ public class SettingsActivity extends AppCompatActivity {
         setupGate();
         setupTheme();
         setupAutosave();
+        setupStatusBar();
         setupChangePin();
         setupBackup();
         setupRestore();
@@ -184,7 +187,8 @@ public class SettingsActivity extends AppCompatActivity {
         btnThemeSystem = findViewById(R.id.btnThemeSystem);
 
         // Autosave
-        switchAutosave = findViewById(R.id.switchAutosave);
+        switchAutosave  = findViewById(R.id.switchAutosave);
+        switchStatusBar = findViewById(R.id.switchStatusBar);
 
         // Change PIN
         etCurrentPin       = findViewById(R.id.etCurrentPin);
@@ -295,6 +299,14 @@ public class SettingsActivity extends AppCompatActivity {
         switchAutosave.setChecked(PinManager.getAutosave());
         switchAutosave.setOnCheckedChangeListener((buttonView, isChecked) ->
                 PinManager.setAutosave(isChecked));
+    }
+
+    // ── Status bar ───────────────────────────────────────────────────────────
+
+    private void setupStatusBar() {
+        switchStatusBar.setChecked(PinManager.getShowStatusBar());
+        switchStatusBar.setOnCheckedChangeListener((buttonView, isChecked) ->
+                PinManager.setShowStatusBar(isChecked));
     }
 
     // ── Change PIN ───────────────────────────────────────────────────────────

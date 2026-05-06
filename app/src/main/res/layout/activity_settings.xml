@@ -189,6 +189,49 @@
                     android:layout_marginStart="16dp" />
             </LinearLayout>
 
+            <!-- Status bar card -->
+            <LinearLayout
+                android:id="@+id/cardStatusBar"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="24dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:padding="24dp">
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="10dp"
+                        android:fontFamily="sans-serif"
+                        android:letterSpacing="0.08"
+                        android:text="Status bar"
+                        android:textColor="?attr/textPrimary"
+                        android:textSize="14sp" />
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="sans-serif"
+                        android:lineSpacingMultiplier="1.5"
+                        android:text="Shows word and character count at the bottom of the editor."
+                        android:textColor="?attr/textFaint"
+                        android:textSize="13sp" />
+                </LinearLayout>
+
+                <androidx.appcompat.widget.SwitchCompat
+                    android:id="@+id/switchStatusBar"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="16dp" />
+            </LinearLayout>
+
             <!-- Change PIN card -->
             <LinearLayout
                 android:id="@+id/cardChangePin"

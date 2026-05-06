@@ -78,6 +78,12 @@ public class EditorActivity extends AppCompatActivity {
         btnSave           = findViewById(R.id.btnSave);
         tvWordCount       = findViewById(R.id.tvWordCount);
         tvStatus          = findViewById(R.id.tvStatus);
+        footerDivider     = findViewById(R.id.footerDivider);
+
+        boolean showStatusBar = PinManager.getShowStatusBar();
+        int footerVis = showStatusBar ? View.VISIBLE : View.GONE;
+        findViewById(R.id.footer).setVisibility(footerVis);
+        footerDivider.setVisibility(footerVis);
 
         tvNoteName.setText(noteName);
         tvNoteName.setOnLongClickListener(v -> { showRenameDialog(); return true; });

@@ -29,6 +29,7 @@ public final class PinManager {
     private static final String KEY_INITIALIZED = "burnerpad_initialized";
     private static final String KEY_AUTOSAVE    = "burnerpad_autosave";
     private static final String KEY_THEME       = "burnerpad_theme";
+    private static final String KEY_STATUS_BAR  = "burnerpad_status_bar";
     private static final String KEY_WALKTHROUGH = "burnerpad_walkthrough_seen";
     private static final String KEY_TUTORIALS   = "burnerpad_tutorials";
     private static final String KEY_LAST_LOC    = "burnerpad_last_location";
@@ -179,6 +180,14 @@ public final class PinManager {
 
     public static void setAutosave(boolean enabled) {
         SecurePrefs.set(KEY_AUTOSAVE, enabled ? "true" : "false");
+    }
+
+    public static boolean getShowStatusBar() {
+        return "true".equals(SecurePrefs.get(KEY_STATUS_BAR, "true"));
+    }
+
+    public static void setShowStatusBar(boolean show) {
+        SecurePrefs.set(KEY_STATUS_BAR, show ? "true" : "false");
     }
 
     public static String getTheme() {
