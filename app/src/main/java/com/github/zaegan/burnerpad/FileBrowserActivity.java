@@ -422,8 +422,11 @@ public class FileBrowserActivity extends AppCompatActivity {
         TypedArray ta = obtainStyledAttributes(new int[]{R.attr.textPrimary});
         int color = ta.getColor(0, 0xFFFFFFFF);
         ta.recycle();
+        // Fill: textPrimary at ~15% alpha so the box reads clearly in both themes
+        int fill = (color & 0x00FFFFFF) | 0x26000000;
         GradientDrawable border = new GradientDrawable();
-        border.setStroke(1, color);
+        border.setStroke(dp(10), color);
+        border.setColor(fill);
         btnSettings.setBackground(border);
         btnSettings.setPadding(dp(8), dp(4), dp(8), dp(4));
     }
