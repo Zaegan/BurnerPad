@@ -5,7 +5,8 @@
     android:background="?attr/bgColor"
     android:fitsSystemWindows="true"
     android:orientation="vertical"
-    android:paddingHorizontal="40dp"
+    android:paddingLeft="40dp"
+    android:paddingRight="40dp"
     android:paddingTop="40dp"
     android:paddingBottom="32dp">
 

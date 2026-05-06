@@ -12,8 +12,10 @@
         android:gravity="center_vertical"
         android:minHeight="@dimen/screen_min_height"
         android:orientation="vertical"
-        android:paddingHorizontal="36dp"
-        android:paddingVertical="60dp">
+        android:paddingLeft="36dp"
+        android:paddingRight="36dp"
+        android:paddingTop="60dp"
+        android:paddingBottom="60dp">
 
         <TextView
             android:id="@+id/tvLogo"

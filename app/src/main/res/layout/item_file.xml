@@ -5,8 +5,10 @@
     android:background="?attr/bgColor"
     android:gravity="center_vertical"
     android:orientation="horizontal"
-    android:paddingHorizontal="20dp"
-    android:paddingVertical="16dp">
+    android:paddingLeft="20dp"
+    android:paddingRight="20dp"
+    android:paddingTop="16dp"
+    android:paddingBottom="16dp">
 
     <TextView
         android:id="@+id/tvIcon"

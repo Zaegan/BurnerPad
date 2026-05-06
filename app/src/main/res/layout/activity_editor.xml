@@ -13,7 +13,8 @@
         android:layout_height="wrap_content"
         android:gravity="center_vertical"
         android:orientation="horizontal"
-        android:paddingHorizontal="20dp"
+        android:paddingLeft="20dp"
+        android:paddingRight="20dp"
         android:paddingTop="16dp"
         android:paddingBottom="14dp">
 
@@ -111,7 +112,8 @@
                 android:letterSpacing="0.02"
                 android:lineSpacingExtra="4dp"
                 android:minHeight="500dp"
-                android:paddingHorizontal="24dp"
+                android:paddingLeft="24dp"
+                android:paddingRight="24dp"
                 android:paddingTop="24dp"
                 android:paddingBottom="8dp"
                 android:scrollHorizontally="false"
@@ -139,7 +141,8 @@
         android:layout_height="wrap_content"
         android:gravity="center_vertical"
         android:orientation="horizontal"
-        android:paddingHorizontal="24dp"
+        android:paddingLeft="24dp"
+        android:paddingRight="24dp"
         android:paddingTop="10dp"
         android:paddingBottom="10dp">
 
