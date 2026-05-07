@@ -233,12 +233,16 @@ public class FileBrowserActivity extends AppCompatActivity {
             new Thread(() -> {
                 try {
                     String content = readUriAsString(uri);
-                    // Infer filename from URI
-                    String rawName = uri.getLastPathSegment();
-                    if (rawName == null) rawName = "imported";
-                    // Strip any path prefix
-                    if (rawName.contains("/")) rawName = rawName.substring(rawName.lastIndexOf('/') + 1);
-                    String name = rawName;
+                    // Get display name via ContentResolver (getLastPathSegment returns doc ID, not filename)
+                    String name = "imported";
+                    try (android.database.Cursor cursor = getContentResolver().query(
+                            uri, new String[]{android.provider.OpenableColumns.DISPLAY_NAME},
+                            null, null, null)) {
+                        if (cursor != null && cursor.moveToFirst()) {
+                            String n = cursor.getString(0);
+                            if (n != null && !n.isEmpty()) name = n;
+                        }
+                    }
                     runOnUiThread(() -> showImportNameDialog(name, content));
                 } catch (Exception e) {
                     runOnUiThread(() -> showError("Import failed", e.getMessage()));
