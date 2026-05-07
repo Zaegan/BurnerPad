@@ -235,6 +235,7 @@ public class EditorActivity extends AppCompatActivity {
 
     private void markDirty() {
         isDirty = true;
+        updateAutosaveUI();
     }
 
     private void scheduleAutoSaveOrShadow() {
@@ -524,6 +525,15 @@ public class EditorActivity extends AppCompatActivity {
         } else {
             tvAutosavedLabel.setVisibility(View.GONE);
             btnSave.setVisibility(View.VISIBLE);
+            if (isDirty) {
+                btnSave.setText("save");
+                btnSave.setAlpha(1.0f);
+                btnSave.setClickable(true);
+            } else {
+                btnSave.setText("saved");
+                btnSave.setAlpha(0.4f);
+                btnSave.setClickable(false);
+            }
         }
     }
 
@@ -533,7 +543,7 @@ public class EditorActivity extends AppCompatActivity {
         int words   = text.trim().isEmpty() ? 0 : text.trim().split("\\s+").length;
         tvWordCount.setText(words + (words == 1 ? " word" : " words") + " · "
                 + chars + (chars == 1 ? " char" : " chars"));
-        tvStatus.setText(isDirty && !autosave ? "unsaved" : "plain text");
+        tvStatus.setText("plain text");
     }
 
     // ── Formatting strip ──────────────────────────────────────────────────────
