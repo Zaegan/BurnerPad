@@ -191,7 +191,7 @@ public final class PinManager {
     }
 
     public static String getTheme() {
-        return SecurePrefs.get(KEY_THEME, "system");
+        return SecurePrefs.get(KEY_THEME, "dark");
     }
 
     public static void setTheme(String mode) {
