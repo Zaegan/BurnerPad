@@ -23,7 +23,6 @@ import androidx.appcompat.widget.SwitchCompat;
 import com.github.zaegan.burnerpad.crypto.CryptoManager;
 import com.github.zaegan.burnerpad.prefs.PinManager;
 import com.github.zaegan.burnerpad.storage.StorageManager;
-import com.github.zaegan.burnerpad.tutorial.TutorialManager;
 import com.github.zaegan.burnerpad.theme.ThemeManager;
 
 import java.io.File;
@@ -126,7 +125,6 @@ public class SettingsActivity extends AppCompatActivity {
         setupRestore();
         setupDuress();
         setupRate();
-        setupOnboarding();
         setupPrivacy();
 
         // Restore unlocked state after recreate() (e.g. theme change)
@@ -675,38 +673,6 @@ public class SettingsActivity extends AppCompatActivity {
                         Uri.parse("https://play.google.com/store/apps/details?id=" + packageName)));
             }
         });
-    }
-
-    // ── Onboarding ───────────────────────────────────────────────────────────
-
-    private void setupOnboarding() {
-        TextView tvStatus = findViewById(R.id.tvOnboardingStatus);
-        Button btnToggle  = findViewById(R.id.btnOnboardingToggle);
-        refreshOnboardingState(tvStatus, btnToggle);
-        btnToggle.setOnClickListener(v -> {
-            boolean complete = PinManager.getWalkthroughSeen()
-                    && TutorialManager.isAllComplete();
-            if (complete) {
-                PinManager.clearWalkthroughSeen();
-                TutorialManager.resetAll();
-            } else {
-                PinManager.setWalkthroughSeen();
-                TutorialManager.completeAll();
-            }
-            refreshOnboardingState(tvStatus, btnToggle);
-        });
-    }
-
-    private void refreshOnboardingState(TextView tvStatus, Button btnToggle) {
-        boolean complete = PinManager.getWalkthroughSeen()
-                && TutorialManager.isAllComplete();
-        if (complete) {
-            tvStatus.setText("Walkthrough and tutorials have been seen.");
-            btnToggle.setText("Reset onboarding");
-        } else {
-            tvStatus.setText("Onboarding will replay on next launch.");
-            btnToggle.setText("Mark onboarding complete");
-        }
     }
 
     // ── Privacy policy ───────────────────────────────────────────────────────

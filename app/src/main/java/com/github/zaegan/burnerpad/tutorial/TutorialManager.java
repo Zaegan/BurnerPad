@@ -47,23 +47,4 @@ public final class TutorialManager {
         try { data.put("declined", true); } catch (Exception ignored) {}
         save(data);
     }
-
-    public static void resetAll() {
-        save(new JSONObject());
-    }
-
-    public static void completeAll() {
-        JSONObject data = new JSONObject();
-        try {
-            data.put(SETTINGS_INTRO, true);
-            data.put("declined", true);
-        } catch (Exception ignored) {}
-        save(data);
-    }
-
-    public static boolean isAllComplete() {
-        JSONObject data = load();
-        if (!data.optBoolean(SETTINGS_INTRO, false)) return false;
-        return true;
-    }
 }

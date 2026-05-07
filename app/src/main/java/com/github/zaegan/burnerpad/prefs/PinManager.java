@@ -206,10 +206,6 @@ public final class PinManager {
         SecurePrefs.set(KEY_WALKTHROUGH, "true");
     }
 
-    public static void clearWalkthroughSeen() {
-        SecurePrefs.set(KEY_WALKTHROUGH, "false");
-    }
-
     public static String getTutorials() {
         return SecurePrefs.get(KEY_TUTORIALS, "{}");
     }
