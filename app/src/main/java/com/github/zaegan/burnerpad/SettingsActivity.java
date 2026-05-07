@@ -1,6 +1,6 @@
 package com.github.zaegan.burnerpad;
 
-import android.app.AlertDialog;
+import androidx.appcompat.app.AlertDialog;
 import android.content.ContentValues;
 import android.content.Intent;
 import android.net.Uri;
