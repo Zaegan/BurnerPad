@@ -360,6 +360,48 @@
                 <Button android:id="@+id/btnRate" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="24dp" android:background="@null" android:fontFamily="sans-serif" android:letterSpacing="0.08" android:paddingVertical="12dp" android:paddingHorizontal="20dp" android:text="rate this app" android:textColor="?attr/textFaint" android:textSize="13sp" />
             </LinearLayout>
 
+            <!-- Onboarding card -->
+            <LinearLayout
+                android:id="@+id/cardOnboarding"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="24dp"
+                android:orientation="vertical"
+                android:padding="24dp">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="10dp"
+                    android:fontFamily="sans-serif"
+                    android:letterSpacing="0.08"
+                    android:text="Onboarding"
+                    android:textColor="?attr/textPrimary"
+                    android:textSize="14sp" />
+
+                <TextView
+                    android:id="@+id/tvOnboardingStatus"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="sans-serif"
+                    android:lineSpacingMultiplier="1.5"
+                    android:textColor="?attr/textFaint"
+                    android:textSize="13sp" />
+
+                <Button
+                    android:id="@+id/btnOnboardingToggle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:background="@null"
+                    android:fontFamily="sans-serif"
+                    android:letterSpacing="0.08"
+                    android:paddingVertical="12dp"
+                    android:paddingHorizontal="20dp"
+                    android:textColor="?attr/textFaint"
+                    android:textSize="13sp" />
+            </LinearLayout>
+
             <TextView
                 android:id="@+id/tvPrivacyContent"
                 android:layout_width="wrap_content"
