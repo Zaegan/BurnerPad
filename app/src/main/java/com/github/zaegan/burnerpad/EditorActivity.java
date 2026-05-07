@@ -283,6 +283,7 @@ public class EditorActivity extends AppCompatActivity {
                 runOnUiThread(() -> {
                     isSaving = false;
                     isDirty  = false;
+                    updateAutosaveUI();
                     updateFooter();
                 });
             } catch (Exception e) {
