@@ -16,7 +16,6 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.github.zaegan.burnerpad.prefs.PinManager;
 import com.github.zaegan.burnerpad.storage.StorageManager;
-import com.github.zaegan.burnerpad.tutorial.TutorialManager;
 
 import org.json.JSONObject;
 
@@ -121,8 +120,6 @@ public class PinActivity extends AppCompatActivity {
                 StorageManager.wipeAllNotes();
                 PinManager.initialize(pin);
                 StorageManager.createDefaultNote();
-                PinManager.clearWalkthroughSeen();
-                TutorialManager.resetAll();
             } catch (Exception ignored) {}
             runOnUiThread(() -> {
                 Intent intent = new Intent(this, FileBrowserActivity.class);
