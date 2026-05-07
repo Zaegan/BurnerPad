@@ -1,6 +1,6 @@
 package com.github.zaegan.burnerpad;
 
-import androidx.appcompat.app.AlertDialog;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import android.content.Intent;
 import android.content.res.TypedArray;
 import android.graphics.drawable.GradientDrawable;
@@ -183,7 +183,7 @@ public class FileBrowserActivity extends AppCompatActivity {
         options.add("Delete");
         options.add("Cancel");
 
-        new AlertDialog.Builder(this)
+        new MaterialAlertDialogBuilder(this)
                 .setTitle(item.name)
                 .setItems(options.toArray(new String[0]), (d, which) -> {
                     String opt = options.get(which);
@@ -253,7 +253,7 @@ public class FileBrowserActivity extends AppCompatActivity {
         et.setSelectAllOnFocus(true);
         et.setPadding(dp(8), dp(8), dp(8), dp(8));
 
-        new AlertDialog.Builder(this)
+        new MaterialAlertDialogBuilder(this)
                 .setTitle("Import as")
                 .setView(et)
                 .setPositiveButton("import", (d, w) -> {
@@ -273,7 +273,7 @@ public class FileBrowserActivity extends AppCompatActivity {
     private void doImport(String relPath, String content, boolean replacing) {
         boolean exists = StorageManager.exists(relPath, false);
         if (exists && !replacing) {
-            new AlertDialog.Builder(this)
+            new MaterialAlertDialogBuilder(this)
                     .setTitle("\"" + relPath + "\" already exists")
                     .setMessage("What would you like to do?")
                     .setPositiveButton("Replace", (d, w) -> doImport(relPath, content, true))
@@ -300,7 +300,7 @@ public class FileBrowserActivity extends AppCompatActivity {
         et.setText(item.name);
         et.setPadding(dp(8), dp(8), dp(8), dp(8));
 
-        new AlertDialog.Builder(this)
+        new MaterialAlertDialogBuilder(this)
                 .setTitle("Rename")
                 .setView(et)
                 .setPositiveButton("rename", (d, w) -> {
@@ -338,7 +338,7 @@ public class FileBrowserActivity extends AppCompatActivity {
         String msg = item.isDirectory
                 ? "This will delete the folder and all notes inside it."
                 : "This cannot be undone.";
-        new AlertDialog.Builder(this)
+        new MaterialAlertDialogBuilder(this)
                 .setTitle("Delete \"" + item.name + "\"?")
                 .setMessage(msg)
                 .setPositiveButton("Delete", (d, w) -> {
@@ -364,7 +364,7 @@ public class FileBrowserActivity extends AppCompatActivity {
         et.setPadding(dp(8), dp(8), dp(8), dp(8));
         et.setInputType(android.text.InputType.TYPE_CLASS_TEXT);
 
-        new AlertDialog.Builder(this)
+        new MaterialAlertDialogBuilder(this)
                 .setTitle(isFolder ? "New folder" : "New note")
                 .setView(et)
                 .setPositiveButton("create", (d, w) -> {
@@ -484,7 +484,7 @@ public class FileBrowserActivity extends AppCompatActivity {
     }
 
     private void showError(String title, String message) {
-        new AlertDialog.Builder(this)
+        new MaterialAlertDialogBuilder(this)
                 .setTitle(title)
                 .setMessage(message)
                 .setPositiveButton("OK", null)

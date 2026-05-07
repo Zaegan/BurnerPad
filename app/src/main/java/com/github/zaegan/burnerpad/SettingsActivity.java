@@ -426,7 +426,7 @@ public class SettingsActivity extends AppCompatActivity {
                     btnCreateBackup.setEnabled(true);
                     etExportPassword.setText("");
                     etExportConfirm.setText("");
-                    new AlertDialog.Builder(this)
+                    new MaterialAlertDialogBuilder(this)
                             .setTitle("Backup created")
                             .setMessage("Saved to your Downloads folder as:\n" + filename)
                             .setPositiveButton("OK", null)
@@ -509,7 +509,7 @@ public class SettingsActivity extends AppCompatActivity {
                     btnRestore.setEnabled(true);
                     etRestorePassword.setText("");
                     tvRestoreProgress.setVisibility(View.GONE);
-                    new AlertDialog.Builder(this)
+                    new MaterialAlertDialogBuilder(this)
                             .setTitle("Restore complete")
                             .setMessage("Your notes have been restored.")
                             .setPositiveButton("OK", null)
@@ -527,7 +527,7 @@ public class SettingsActivity extends AppCompatActivity {
     }
 
     private void showConflictDialog(String path, BlockingQueue<String> result) {
-        new AlertDialog.Builder(this)
+        new MaterialAlertDialogBuilder(this)
                 .setTitle("File exists")
                 .setMessage("\"" + path + "\" already exists. What should we do?")
                 .setCancelable(false)

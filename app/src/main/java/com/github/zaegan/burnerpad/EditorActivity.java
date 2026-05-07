@@ -1,6 +1,6 @@
 package com.github.zaegan.burnerpad;
 
-import androidx.appcompat.app.AlertDialog;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Environment;
@@ -177,7 +177,7 @@ public class EditorActivity extends AppCompatActivity {
     private void showRecoveryDialog(String shadowText, boolean as) {
         autosave = as;
         String applyLabel = as ? "Apply recovery" : "Open recovery";
-        new AlertDialog.Builder(this)
+        new MaterialAlertDialogBuilder(this)
                 .setTitle("Recovery file detected")
                 .setMessage(as
                         ? "A recovery version of this note exists. Apply it or discard it?"
@@ -321,7 +321,7 @@ public class EditorActivity extends AppCompatActivity {
     }
 
     private void showUnsavedDialog(Runnable onDone) {
-        new AlertDialog.Builder(this)
+        new MaterialAlertDialogBuilder(this)
                 .setTitle("Unsaved changes")
                 .setMessage("Turn on autosave in settings to prevent these prompts.")
                 .setPositiveButton("Save and exit", (d, w) -> {
@@ -399,7 +399,7 @@ public class EditorActivity extends AppCompatActivity {
         ll.addView(lblDir);
         ll.addView(etDir);
 
-        new AlertDialog.Builder(this)
+        new MaterialAlertDialogBuilder(this)
                 .setTitle("Save as")
                 .setView(ll)
                 .setPositiveButton("save", (d, w) -> {
@@ -449,7 +449,7 @@ public class EditorActivity extends AppCompatActivity {
     }
 
     private void menuDelete() {
-        new AlertDialog.Builder(this)
+        new MaterialAlertDialogBuilder(this)
                 .setTitle("Delete this note?")
                 .setMessage("This cannot be undone.")
                 .setPositiveButton("Delete", (d, w) -> {
@@ -480,7 +480,7 @@ public class EditorActivity extends AppCompatActivity {
         et.setText(noteName);
         et.setPadding(dp(8), dp(8), dp(8), dp(8));
 
-        new AlertDialog.Builder(this)
+        new MaterialAlertDialogBuilder(this)
                 .setTitle("Rename note")
                 .setView(et)
                 .setPositiveButton("rename", (d, w) -> {
@@ -588,7 +588,7 @@ public class EditorActivity extends AppCompatActivity {
     private void showSessionErrorOrAlert(Exception e) {
         String msg = e.getMessage() != null ? e.getMessage() : e.toString();
         if (msg.contains("session key") || msg.contains("session")) {
-            new AlertDialog.Builder(this)
+            new MaterialAlertDialogBuilder(this)
                     .setTitle("Session expired")
                     .setMessage("Your session has expired.")
                     .setPositiveButton("Log in", (d, w) ->
@@ -601,7 +601,7 @@ public class EditorActivity extends AppCompatActivity {
     }
 
     private void showError(String message) {
-        new AlertDialog.Builder(this)
+        new MaterialAlertDialogBuilder(this)
                 .setMessage(message)
                 .setPositiveButton("OK", null)
                 .show();
