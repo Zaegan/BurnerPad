@@ -29,6 +29,7 @@
         <item name="errorMutedColor">@color/error_muted</item>
         <item name="highlightColor">@color/highlight</item>
         <item name="overlayColor">@color/overlay</item>
+        <item name="materialAlertDialogTheme">@style/Theme.BurnerPad.AlertDialog</item>
     </style>
 
     <!-- Transparent splash while MainActivity routes to correct screen -->
@@ -40,6 +41,17 @@
     <!-- Dialog style -->
     <style name="Theme.BurnerPad.Dialog" parent="Theme.MaterialComponents.DayNight.Dialog">
         <item name="android:background">@color/surface</item>
+    </style>
+
+    <!-- Alert dialog: override button text color to use text_primary instead of colorPrimary -->
+    <style name="Theme.BurnerPad.AlertDialog" parent="ThemeOverlay.MaterialComponents.MaterialAlertDialog">
+        <item name="buttonBarPositiveButtonStyle">@style/Theme.BurnerPad.DialogButton</item>
+        <item name="buttonBarNegativeButtonStyle">@style/Theme.BurnerPad.DialogButton</item>
+        <item name="buttonBarNeutralButtonStyle">@style/Theme.BurnerPad.DialogButton</item>
+    </style>
+
+    <style name="Theme.BurnerPad.DialogButton" parent="Widget.MaterialComponents.Button.TextButton.Dialog">
+        <item name="android:textColor">@color/text_primary</item>
     </style>
 
 </resources>
