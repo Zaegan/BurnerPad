@@ -4,9 +4,14 @@
     android:layout_height="match_parent"
     android:background="?attr/bgColor"
     android:fitsSystemWindows="true"
-    android:gravity="center"
-    android:orientation="vertical"
-    android:padding="40dp">
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:padding="40dp">
 
     <TextView
         android:id="@+id/tvLogo"
@@ -118,4 +123,5 @@
             android:textSize="11sp" />
     </LinearLayout>
 
+    </LinearLayout>
 </LinearLayout>

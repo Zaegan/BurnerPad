@@ -12,6 +12,7 @@ import android.widget.PopupMenu;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.github.zaegan.burnerpad.crypto.CryptoManager;
@@ -67,6 +68,7 @@ public class EditorActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        EdgeToEdge.enable(this);
         setContentView(R.layout.activity_editor);
 
         notePath = getIntent().getStringExtra(EXTRA_NOTE_PATH);
