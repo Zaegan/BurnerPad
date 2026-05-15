@@ -5,6 +5,7 @@
         <item name="colorPrimary">@color/border_focus</item>
         <item name="colorPrimaryVariant">@color/border_strong</item>
         <item name="colorOnPrimary">@color/text_primary</item>
+        <item name="colorControlActivated">@color/text_primary</item>
         <item name="android:colorBackground">@color/bg</item>
         <item name="android:textColor">@color/text_primary</item>
         <item name="android:fontFamily">sans-serif</item>
