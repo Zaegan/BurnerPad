@@ -106,7 +106,8 @@ public class EditorActivity extends AppCompatActivity {
                     etEditor.setText(stripped);
                     etEditor.setSelection(Math.min(sel, stripped.length()));
                     etEditor.addTextChangedListener(this);
-                    return;
+                    // fall through: a strip still edits the note, so it must
+                    // mark dirty and schedule autosave like any other change
                 }
                 markDirty();
                 scheduleAutoSaveOrShadow();
