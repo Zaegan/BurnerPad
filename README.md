@@ -79,7 +79,7 @@ BurnerPad/
 ├── build.json                    # Build configuration (version, SDK, dependencies)
 ├── icon-512.png                  # Source icon (512×512, generates all density variants)
 ├── docs/
-│   └── privacy.html              # Privacy policy (served via GitHub Pages)
+│   └── README.md                 # Where the privacy policy lives (Zaegan/Zaegan.github.io)
 └── app/src/main/
     ├── AndroidManifest.xml
     ├── java/com/github/zaegan/burnerpad/
